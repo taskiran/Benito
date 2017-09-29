@@ -5,6 +5,10 @@ using UnityEngine;
 public class Player : MonoBehaviour {
 
     public float movementSpeed = 10f;
+    public float stepSpeed = 0.03f;
+
+    [HideInInspector]
+    public bool collidedFront, collidedBack, collidedLeft, collidedRight;
 
     private Vector3 movementVector;
     private bool move, xMoved;
@@ -32,6 +36,7 @@ public class Player : MonoBehaviour {
                 if(hit.transform.position != transform.position)
                 {
                     movementVector = new Vector3(hit.transform.position.x, transform.position.y, hit.transform.position.z);
+                    xMoved = false;
                     move = true;
                 }
             }
@@ -42,41 +47,97 @@ public class Player : MonoBehaviour {
     {
         if(move)
         {
-            /*transform.position = Vector3.MoveTowards(transform.position, movementVector, movementSpeed * Time.deltaTime);*/
-
+            // Si la x es menor a la suya
+            //print(transform.position.x + ", " + movementVector.x);
             if(movementVector.x < transform.position.x)
             {
-                transform.position = Vector3.MoveTowards(transform.position, new Vector3(transform.position.x - 1, transform.position.y, transform.position.z), movementSpeed * Time.deltaTime);
-            }
-            else if (movementVector.x > transform.position.x)
-            {
-                transform.position = Vector3.MoveTowards(transform.position, new Vector3(transform.position.x + 1, transform.position.y, transform.position.z), movementSpeed * Time.deltaTime);
+                InvokeRepeating("MoveMX", 0f, stepSpeed);
             }
 
-            if (movementVector.z < transform.position.z && xMoved)
+            // Si la x es mayor a la suya
+            if (movementVector.x > transform.position.x)
             {
-                transform.position = Vector3.MoveTowards(transform.position, new Vector3(transform.position.x, transform.position.y, transform.position.z - 1), movementSpeed * Time.deltaTime);
-            }
-            else if (movementVector.z > transform.position.z)
-            {
-                transform.position = Vector3.MoveTowards(transform.position, new Vector3(transform.position.x, transform.position.y, transform.position.z + 1), movementSpeed * Time.deltaTime);
+                InvokeRepeating("MovePX", 0f, stepSpeed);
             }
 
-            if(transform.position.x == movementVector.x)
-            {
-                print("1");
-                transform.position = new Vector3(movementVector.x, transform.position.y, transform.position.z);
-                xMoved = true;
-            }
-            else
-            {
-                xMoved = false;
-            }
 
-            if (transform.position == movementVector)
+            // Si ha llegado a la X de destino
+            if (xMoved)
             {
-                move = false;
+                // Si la z es menor a la suya
+                if (movementVector.z < transform.position.z)
+                {
+                    InvokeRepeating("MoveMZ", 0, stepSpeed);
+                }
+
+                // Si la z es mayor a la suya
+                if (movementVector.z > transform.position.z)
+                {
+                    InvokeRepeating("MovePZ", 0, stepSpeed);
+                }
             }
+        }
+    }
+
+    // Move to front
+    void MoveMX()
+    {
+        if (collidedFront)
+        {
+            transform.position = new Vector3(Mathf.RoundToInt(transform.position.x), transform.position.y, transform.position.z);
+            collidedFront = false;
+            CancelInvoke();
+        }
+
+
+        if(transform.position.x < movementVector.x)
+        {
+            transform.position = new Vector3(movementVector.x, transform.position.y, transform.position.z);
+            xMoved = true;
+            CancelInvoke();
+        }
+        else
+        {
+            transform.position = Vector3.MoveTowards(transform.position, new Vector3(transform.position.x - 1, transform.position.y, transform.position.z), movementSpeed * Time.deltaTime);
+        }
+    }
+    void MovePX()
+    {
+        if (transform.position.x > movementVector.x)
+        {
+            transform.position = new Vector3(movementVector.x, transform.position.y, transform.position.z);
+            xMoved = true;
+            CancelInvoke();
+        }
+        else
+        {
+            transform.position = Vector3.MoveTowards(transform.position, new Vector3(transform.position.x + 1, transform.position.y, transform.position.z), movementSpeed * Time.deltaTime);
+        }
+    }
+    void MoveMZ()
+    {
+        if (transform.position.z < movementVector.z)
+        {
+            transform.position = new Vector3(transform.position.x, transform.position.y, movementVector.z);
+            move = false;
+            CancelInvoke();
+        }
+        else
+        {
+            transform.position = Vector3.MoveTowards(transform.position, new Vector3(transform.position.x, transform.position.y, transform.position.z - 1), movementSpeed * Time.deltaTime);
+        }
+    }
+    void MovePZ()
+    {
+        if (transform.position.z > movementVector.z)
+        {
+            transform.position = new Vector3(transform.position.x, transform.position.y, movementVector.z);
+            move = false;
+            CancelInvoke();
+        }
+        else
+        {
+            transform.position = Vector3.MoveTowards(transform.position, new Vector3(transform.position.x, transform.position.y, transform.position.z + 1), movementSpeed * Time.deltaTime);
         }
     }
 }

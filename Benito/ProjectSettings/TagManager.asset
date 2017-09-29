@@ -6,6 +6,7 @@ TagManager:
   tags:
   - TileMap
   - GameManager
+  - Obstacle
   layers:
   - Default
   - TransparentFX
