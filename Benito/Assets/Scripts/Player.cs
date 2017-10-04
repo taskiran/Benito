@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.AI;
 
 public class Player : MonoBehaviour {
 
@@ -8,19 +9,33 @@ public class Player : MonoBehaviour {
     public float stepSpeed = 0.03f;
 
     [HideInInspector]
-    public bool collidedFront, collidedBack, collidedLeft, collidedRight;
+    public bool collidedFront, collidedBack, collidedLeft, collidedRight, pathFinded;
 
-    private Vector3 movementVector;
-    private bool move, xMoved;
+    public List<Vector3> positionsToTranslate = new List<Vector3>();
+
+    private GameObject target;
+    private bool move;
     private GameGenerator generator;
+    private NavMeshAgent agent;
+    private TerrainTile actualTile;
+
+    public int i;
+    private float stepTimer = 0;
 
 	// Use this for initialization
-	void Start () {
+	void Awake () {
         generator = GameObject.FindGameObjectWithTag("GameManager").GetComponent<GameGenerator>();
+        agent = GetComponent<NavMeshAgent>();
 	}
-	
-	// Update is called once per frame
-	void Update () {
+
+    private void Start()
+    {
+        i = 0;
+        actualTile = generator.terrainTiles[0, 0];
+    }
+
+    // Update is called once per frame
+    void Update () {
         CheckInput();
         Movement();
 	}
@@ -29,14 +44,32 @@ public class Player : MonoBehaviour {
     {
         if(Input.touchCount > 0)
         {
-            Ray ray = Camera.main.ScreenPointToRay(Input.GetTouch(0).position);
+            RaycastHit[] hits;
+            hits = Physics.RaycastAll(Camera.main.ScreenPointToRay(Input.GetTouch(0).position));
+
+            for (int i = 0; i < hits.Length; i++)
+            {
+                RaycastHit hit = hits[i];
+                if (hit.transform.position != transform.position && hit.transform.tag == "Tile")
+                {
+                    target = hit.transform.gameObject;
+                    move = true;
+                }
+            }
+
+        }
+        else if (Input.GetMouseButtonDown(0))
+        {
+            Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
             RaycastHit hit;
             if (Physics.Raycast(ray, out hit))
             {
-                if(hit.transform.position != transform.position)
+                if (hit.transform.position != transform.position && !move)
                 {
-                    movementVector = new Vector3(hit.transform.position.x, transform.position.y, hit.transform.position.z);
-                    xMoved = false;
+                    //print("Click!");
+                    target = hit.transform.gameObject;
+                    generator.terrainTiles[hit.transform.GetComponent<TerrainTile>().x, hit.transform.GetComponent<TerrainTile>().z].target = true;
+                    generator.terrainTiles[actualTile.x, actualTile.z].search = true;
                     move = true;
                 }
             }
@@ -45,99 +78,45 @@ public class Player : MonoBehaviour {
 
     void Movement()
     {
-        if(move)
+        if (move && pathFinded)
         {
-            // Si la x es menor a la suya
-            //print(transform.position.x + ", " + movementVector.x);
-            if(movementVector.x < transform.position.x)
+            if (i >= 0)
             {
-                InvokeRepeating("MoveMX", 0f, stepSpeed);
-            }
-
-            // Si la x es mayor a la suya
-            if (movementVector.x > transform.position.x)
-            {
-                InvokeRepeating("MovePX", 0f, stepSpeed);
-            }
-
-
-            // Si ha llegado a la X de destino
-            if (xMoved)
-            {
-                // Si la z es menor a la suya
-                if (movementVector.z < transform.position.z)
+                // Temporizador de pasos
+                stepTimer += Time.deltaTime;
+                if(stepTimer >= movementSpeed)
                 {
-                    InvokeRepeating("MoveMZ", 0, stepSpeed);
+                    transform.position = new Vector3(positionsToTranslate[i].x, transform.position.y, positionsToTranslate[i].z);
+                    if (i == 0)
+                    {
+                        i = 0;
+                        transform.position = new Vector3(target.transform.position.x, transform.position.y, target.transform.position.z);
+                        actualTile = target.GetComponent<TerrainTile>();
+                        move = false;
+                        pathFinded = false;
+                        generator.reverseSearch = false;
+                        foreach (TerrainTile tile in generator.terrainTiles)
+                        {
+                            tile.chainPositions.Clear();
+                            tile.target = false;
+                            tile.search = false;
+                            tile.hasSearched = false;
+                            tile.reverse = false;
+                            tile.backwarded = false;
+                            tile.steps = 0;
+                        }
+                    }
+                    else
+                    {
+                        i--;
+                        //print(i);
+                        stepTimer = 0;
+                    }
+                    
                 }
 
-                // Si la z es mayor a la suya
-                if (movementVector.z > transform.position.z)
-                {
-                    InvokeRepeating("MovePZ", 0, stepSpeed);
-                }
+                
             }
-        }
-    }
-
-    // Move to front
-    void MoveMX()
-    {
-        if (collidedFront)
-        {
-            transform.position = new Vector3(Mathf.RoundToInt(transform.position.x), transform.position.y, transform.position.z);
-            collidedFront = false;
-            CancelInvoke();
-        }
-
-
-        if(transform.position.x < movementVector.x)
-        {
-            transform.position = new Vector3(movementVector.x, transform.position.y, transform.position.z);
-            xMoved = true;
-            CancelInvoke();
-        }
-        else
-        {
-            transform.position = Vector3.MoveTowards(transform.position, new Vector3(transform.position.x - 1, transform.position.y, transform.position.z), movementSpeed * Time.deltaTime);
-        }
-    }
-    void MovePX()
-    {
-        if (transform.position.x > movementVector.x)
-        {
-            transform.position = new Vector3(movementVector.x, transform.position.y, transform.position.z);
-            xMoved = true;
-            CancelInvoke();
-        }
-        else
-        {
-            transform.position = Vector3.MoveTowards(transform.position, new Vector3(transform.position.x + 1, transform.position.y, transform.position.z), movementSpeed * Time.deltaTime);
-        }
-    }
-    void MoveMZ()
-    {
-        if (transform.position.z < movementVector.z)
-        {
-            transform.position = new Vector3(transform.position.x, transform.position.y, movementVector.z);
-            move = false;
-            CancelInvoke();
-        }
-        else
-        {
-            transform.position = Vector3.MoveTowards(transform.position, new Vector3(transform.position.x, transform.position.y, transform.position.z - 1), movementSpeed * Time.deltaTime);
-        }
-    }
-    void MovePZ()
-    {
-        if (transform.position.z > movementVector.z)
-        {
-            transform.position = new Vector3(transform.position.x, transform.position.y, movementVector.z);
-            move = false;
-            CancelInvoke();
-        }
-        else
-        {
-            transform.position = Vector3.MoveTowards(transform.position, new Vector3(transform.position.x, transform.position.y, transform.position.z + 1), movementSpeed * Time.deltaTime);
         }
     }
 }

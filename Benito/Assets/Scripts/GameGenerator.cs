@@ -5,13 +5,13 @@ using UnityEngine;
 public class GameGenerator : MonoBehaviour {
 
     public int numberOfZTiles, numberOfXTiles;
-    public GameObject tilePrefab, terrainTilesParent;
-    public float heightSpawn = 3f;
-
+    public GameObject tilePrefab, terrainTilesParent, wallPrefab;
+    public float spaceBetweenTiles, heightSpawn = 3f, spawnSpeed = .0005f;
+    public bool reverseSearch;
     public TerrainTile[,] terrainTiles;
 
 	// Use this for initialization
-	void Start () {
+	void Awake () {
         terrainTiles = new TerrainTile[numberOfXTiles, numberOfZTiles];
         StartCoroutine(GenerateTerrainTiles());
 	}
@@ -27,14 +27,14 @@ public class GameGenerator : MonoBehaviour {
         {
             for (int x = 0; x > -numberOfXTiles; x--)
             {
-                GameObject tile = Instantiate(tilePrefab, new Vector3(z, heightSpawn, x), Quaternion.identity);
+                GameObject tile = Instantiate(tilePrefab, new Vector3(z + (spaceBetweenTiles * z), heightSpawn, x + (spaceBetweenTiles * x)), Quaternion.identity);
                 tile.transform.parent = terrainTilesParent.transform;
-                tile.GetComponent<TerrainTile>().z = z;
-                tile.GetComponent<TerrainTile>().x = x;
+                tile.GetComponent<TerrainTile>().z = z * -1;
+                tile.GetComponent<TerrainTile>().x = x * -1;
 
-                terrainTiles[Mathf.Abs(x), Mathf.Abs(z)] = tile.GetComponent<TerrainTile>();
-                yield return new WaitForSeconds(.0003f);
+                terrainTiles[x * -1, z * -1] = tile.GetComponent<TerrainTile>();
             }
+            yield return new WaitForSeconds(spawnSpeed);
         }
     }
 }

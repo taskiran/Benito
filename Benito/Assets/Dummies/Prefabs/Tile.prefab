@@ -24,8 +24,8 @@ GameObject:
   - component: {fileID: 23014547854834858}
   - component: {fileID: 114612373664776484}
   m_Layer: 0
-  m_Name: Cube
-  m_TagString: TileMap
+  m_Name: Tile
+  m_TagString: Tile
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -89,7 +89,7 @@ BoxCollider:
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1787328534864328}
   m_Material: {fileID: 0}
-  m_IsTrigger: 0
+  m_IsTrigger: 1
   m_Enabled: 1
   serializedVersion: 2
   m_Size: {x: 1, y: 1, z: 1}
@@ -106,4 +106,12 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   x: 0
+  y: 0
   z: 0
+  steps: 0
+  target: 0
+  search: 0
+  hasSearched: 0
+  reverse: 0
+  backwarded: 0
+  chainPositions: []
