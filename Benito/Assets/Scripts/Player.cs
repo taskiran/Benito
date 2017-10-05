@@ -66,7 +66,6 @@ public class Player : MonoBehaviour {
             {
                 if (hit.transform.position != transform.position && !move)
                 {
-                    //print("Click!");
                     target = hit.transform.gameObject;
                     generator.terrainTiles[hit.transform.GetComponent<TerrainTile>().x, hit.transform.GetComponent<TerrainTile>().z].target = true;
                     generator.terrainTiles[actualTile.x, actualTile.z].search = true;
@@ -109,7 +108,6 @@ public class Player : MonoBehaviour {
                     else
                     {
                         i--;
-                        //print(i);
                         stepTimer = 0;
                     }
                     

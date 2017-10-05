@@ -5,6 +5,7 @@ using UnityEngine;
 public class TerrainTile : MonoBehaviour {
 
     public int x, y, z, steps;
+    public bool completeObstacle, pXObstacle, mXObstacle, pZObstacle, mZObstacle;
 
     public bool target, search, hasSearched, reverse, backwarded;
     public List<Vector3> chainPositions = new List<Vector3>();
@@ -19,6 +20,13 @@ public class TerrainTile : MonoBehaviour {
         player = GameObject.FindGameObjectWithTag("Player").GetComponent<Player>();
     }
 
+    private void Start()
+    {
+        // Borrame
+        int i = Random.Range(0,9);
+        print(i);
+    }
+
     private void Update()
     {
         if (!positionated)
@@ -26,7 +34,7 @@ public class TerrainTile : MonoBehaviour {
 
         if (!player.pathFinded)
         {
-            if (search && !generator.reverseSearch)
+            if (search && !generator.reverseSearch && !completeObstacle)
                 AddPositionToNeighbours();
 
             if (reverse)
@@ -41,9 +49,9 @@ public class TerrainTile : MonoBehaviour {
         if (!backwarded)
         {
             Color col = Color.red;
-            col.r = steps * .01f;
+            //col.r = steps * .01f;
             //print(0.1f * steps);
-            GetComponent<Renderer>().material.color = col;
+            //GetComponent<Renderer>().material.color = col;
         }
     }
 
@@ -72,7 +80,7 @@ public class TerrainTile : MonoBehaviour {
 
             // Borrame
             backwarded = true;
-            GetComponent<Renderer>().material.color = Color.yellow;
+            //GetComponent<Renderer>().material.color = Color.yellow;
         }
         // Si aun queda recorrido
         else
@@ -80,7 +88,7 @@ public class TerrainTile : MonoBehaviour {
             // Busca al tile vecino con el paso anterior a este
             if (x > 0)
             {
-                if (generator.terrainTiles[x - 1, z].steps == steps -1 && !backwarded)
+                if (generator.terrainTiles[x - 1, z].steps == steps -1 && !backwarded && !generator.terrainTiles[x - 1, z].search)
                 {
                     // Almacena las posiciones guardadas
                     chainPositions.Add(transform.position);
@@ -92,12 +100,12 @@ public class TerrainTile : MonoBehaviour {
                     backwarded = true;
 
                     //Borrame
-                    generator.terrainTiles[x - 1, z].transform.GetComponent<Renderer>().material.color = Color.white;
+                    //generator.terrainTiles[x - 1, z].transform.GetComponent<Renderer>().material.color = Color.white;
                 }
             }
             if (x < generator.numberOfXTiles - 1)
             {
-                if (generator.terrainTiles[x + 1, z].steps == steps - 1 && !backwarded)
+                if (generator.terrainTiles[x + 1, z].steps == steps - 1 && !backwarded && !generator.terrainTiles[x + 1, z].search)
                 {
                     // Almacena las posiciones guardadas
                     chainPositions.Add(transform.position);
@@ -109,12 +117,12 @@ public class TerrainTile : MonoBehaviour {
                     backwarded = true;
 
                     //Borrame
-                    generator.terrainTiles[x + 1, z].transform.GetComponent<Renderer>().material.color = Color.white;
+                    //generator.terrainTiles[x + 1, z].transform.GetComponent<Renderer>().material.color = Color.white;
                 }
             }
             if (z > 0)
             {
-                if (generator.terrainTiles[x, z - 1].steps == steps - 1 && !backwarded)
+                if (generator.terrainTiles[x, z - 1].steps == steps - 1 && !backwarded && !generator.terrainTiles[x, z - 1].search)
                 {
                     // Almacena las posiciones guardadas
                     chainPositions.Add(transform.position);
@@ -126,13 +134,13 @@ public class TerrainTile : MonoBehaviour {
                     backwarded = true;
 
                     //Borrame
-                    generator.terrainTiles[x , z - 1].transform.GetComponent<Renderer>().material.color = Color.white;
+                   // generator.terrainTiles[x , z - 1].transform.GetComponent<Renderer>().material.color = Color.white;
                 }
             }
 
             if (z < generator.numberOfZTiles - 1)
             {
-                if (generator.terrainTiles[x, z + 1].steps == steps - 1 && !backwarded)
+                if (generator.terrainTiles[x, z + 1].steps == steps - 1 && !backwarded && !generator.terrainTiles[x, z + 1].search)
                 {
                     // Almacena las posiciones guardadas
                     chainPositions.Add(transform.position);
@@ -144,7 +152,7 @@ public class TerrainTile : MonoBehaviour {
                     backwarded = true;
 
                     //Borrame
-                    generator.terrainTiles[x, z + 1].transform.GetComponent<Renderer>().material.color = Color.white;
+                    //generator.terrainTiles[x, z + 1].transform.GetComponent<Renderer>().material.color = Color.white;
                 }
             }
         }
@@ -155,131 +163,155 @@ public class TerrainTile : MonoBehaviour {
         // Si aun no se encontrado al objetivo...
         if (!player.pathFinded)
         {
-            // Si es = 0
-            if (x == 0 && z == 0)
+            // +X
+            if (!mZObstacle)
             {
-                if (generator.terrainTiles[x + 1, z].target)
+                // Si es = 0
+                if (x == 0 && z == 0)
                 {
-                    // Indica a este tile a ir para atrás
-                    chainPositions.Add(transform.position);
-                    reverse = true;
-                    search = false;
+                    if (generator.terrainTiles[x + 1, z].target)
+                    {
+                        // Indica a este tile a ir para atrás
+                        chainPositions.Add(transform.position);
+                        reverse = true;
+                        search = false;
 
-                    //Borrame
-                    GetComponent<Renderer>().material.color = Color.white;
-                }
-                else if (!generator.terrainTiles[x + 1, z].hasSearched)
-                {
-                    // Suma un paso al siguiente tile
-                    generator.terrainTiles[x + 1, z].steps = steps + 1;
-                    // Indica al siguiente tile que busque al objetivo en sus vecinos
-                    generator.terrainTiles[x + 1, z].search = true;
+                        //Borrame
+                        //GetComponent<Renderer>().material.color = Color.white;
+                    }
+                    else if (!generator.terrainTiles[x + 1, z].hasSearched)
+                    {
+                        // Suma un paso al siguiente tile
+                        generator.terrainTiles[x + 1, z].steps = steps + 1;
+                        // Indica al siguiente tile que busque al objetivo en sus vecinos
+                        generator.terrainTiles[x + 1, z].search = true;
+                    }
                 }
 
-                if (generator.terrainTiles[x, z + 1].target)
+                // Si la X es menor al total de X Tiles
+                if (x < generator.numberOfXTiles - 1)
                 {
-                    // Indica a este tile a ir para atrás
-                    chainPositions.Add(transform.position);
-                    reverse = true;
-                    search = false;
+                    if (generator.terrainTiles[x + 1, z].target)
+                    {
+                        // Indica a este tile a ir para atrás
+                        chainPositions.Add(transform.position);
+                        reverse = true;
+                        search = false;
 
-                    //Borrame
-                    GetComponent<Renderer>().material.color = Color.white;
-                }
-                else if (!generator.terrainTiles[x, z + 1].hasSearched)
-                {
-                    // Suma un paso al siguiente tile
-                    generator.terrainTiles[x, z + 1].steps = steps + 1;
-                    // Indica al siguiente tile que busque al objetivo en sus vecinos
-                    generator.terrainTiles[x, z + 1].search = true;
+                        //Borrame
+                        //GetComponent<Renderer>().material.color = Color.white;
+                    }
+                    else if (!generator.terrainTiles[x + 1, z].hasSearched)
+                    {
+                        // Suma un paso al siguiente tile
+                        generator.terrainTiles[x + 1, z].steps = steps + 1;
+                        // Indica al siguiente tile que busque al objetivo en sus vecinos
+                        generator.terrainTiles[x + 1, z].search = true;
+                    }
                 }
             }
 
-            if (z > 0)
+            // -X
+            if (!pZObstacle)
             {
-                if (generator.terrainTiles[x, z - 1].target)
+                // Si la X es mayor a 0
+                if (x > 0)
                 {
-                    // Indica a este tile a ir para atrás
-                    chainPositions.Add(transform.position);
-                    reverse = true;
-                    search = false;
+                    if (generator.terrainTiles[x - 1, z].target)
+                    {
+                        // Indica a este tile a ir para atrás
+                        chainPositions.Add(transform.position);
+                        reverse = true;
+                        search = false;
 
-                    //Borrame
-                    GetComponent<Renderer>().material.color = Color.white;
+                        //Borrame
+                        //GetComponent<Renderer>().material.color = Color.white;
+                    }
+                    else if (!generator.terrainTiles[x - 1, z].hasSearched)
+                    {
+                        // Suma un paso al siguiente tile
+                        generator.terrainTiles[x - 1, z].steps = steps + 1;
+                        // Indica al siguiente tile que busque al objetivo en sus vecinos
+                        generator.terrainTiles[x - 1, z].search = true;
+                    }
                 }
-                else if (!generator.terrainTiles[x, z - 1].hasSearched)
+
+                
+            }
+
+            // +Z
+            if (!mXObstacle)
+            {
+                // Si es = 0
+                if (x == 0 && z == 0)
                 {
-                    // Suma un paso al siguiente tile
-                    generator.terrainTiles[x, z - 1].steps = steps + 1;
-                    // Indica al siguiente tile que busque al objetivo en sus vecinos
-                    generator.terrainTiles[x, z - 1].search = true;
+                    if (generator.terrainTiles[x, z + 1].target)
+                    {
+                        // Indica a este tile a ir para atrás
+                        chainPositions.Add(transform.position);
+                        reverse = true;
+                        search = false;
+
+                        //Borrame
+                        GetComponent<Renderer>().material.color = Color.white;
+                    }
+                    else if (!generator.terrainTiles[x, z + 1].hasSearched)
+                    {
+                        // Suma un paso al siguiente tile
+                        generator.terrainTiles[x, z + 1].steps = steps + 1;
+                        // Indica al siguiente tile que busque al objetivo en sus vecinos
+                        generator.terrainTiles[x, z + 1].search = true;
+                    }
+                }
+
+                // Si la Z es menor al total de Z Tiles
+                if (z < generator.numberOfZTiles - 1)
+                {
+                    if (generator.terrainTiles[x, z + 1].target)
+                    {
+                        // Indica a este tile a ir para atrás
+                        chainPositions.Add(transform.position);
+                        reverse = true;
+                        search = false;
+
+                        //Borrame
+                        //GetComponent<Renderer>().material.color = Color.white;
+                    }
+                    else if (!generator.terrainTiles[x, z + 1].hasSearched)
+                    {
+                        // Suma un paso al siguiente tile
+                        generator.terrainTiles[x, z + 1].steps = steps + 1;
+                        // Indica al siguiente tile que busque al objetivo en sus vecinos
+                        generator.terrainTiles[x, z + 1].search = true;
+                    }
                 }
             }
 
-            if (z < generator.numberOfZTiles - 1)
+            // -Z
+            if (!pXObstacle)
             {
-                if (generator.terrainTiles[x, z + 1].target)
+                // Si la Z es mayor a 0
+                if (z > 0)
                 {
-                    // Indica a este tile a ir para atrás
-                    chainPositions.Add(transform.position);
-                    reverse = true;
-                    search = false;
+                    if (generator.terrainTiles[x, z - 1].target)
+                    {
+                        // Indica a este tile a ir para atrás
+                        chainPositions.Add(transform.position);
+                        reverse = true;
+                        search = false;
 
-                    //Borrame
-                    GetComponent<Renderer>().material.color = Color.white;
-                }
-                else if (!generator.terrainTiles[x, z + 1].hasSearched)
-                {
-                    // Suma un paso al siguiente tile
-                    generator.terrainTiles[x, z + 1].steps = steps + 1;
-                    // Indica al siguiente tile que busque al objetivo en sus vecinos
-                    generator.terrainTiles[x, z + 1].search = true;
+                        //Borrame
+                        //GetComponent<Renderer>().material.color = Color.white;
+                    }
+                    else if (!generator.terrainTiles[x, z - 1].hasSearched)
+                    {
+                        // Suma un paso al siguiente tile
+                        generator.terrainTiles[x, z - 1].steps = steps + 1;
+                        // Indica al siguiente tile que busque al objetivo en sus vecinos
+                        generator.terrainTiles[x, z - 1].search = true;
+                    }
                 }
             }
-
-            // Comprueba si algun vecino es el objetivo
-            if (x > 0)
-            {
-                if(generator.terrainTiles[x - 1, z].target)
-                {
-                    // Indica a este tile a ir para atrás
-                    chainPositions.Add(transform.position);
-                    reverse = true;
-                    search = false;
-
-                    //Borrame
-                    GetComponent<Renderer>().material.color = Color.white;
-                }
-                else if (!generator.terrainTiles[x - 1, z].hasSearched)
-                {
-                    // Suma un paso al siguiente tile
-                    generator.terrainTiles[x - 1, z].steps = steps + 1;
-                    // Indica al siguiente tile que busque al objetivo en sus vecinos
-                    generator.terrainTiles[x - 1, z].search = true;
-                }
-            }
-            if(x < generator.numberOfXTiles - 1)
-            {
-                if (generator.terrainTiles[x + 1, z].target)
-                {
-                    // Indica a este tile a ir para atrás
-                    chainPositions.Add(transform.position);
-                    reverse = true;
-                    search = false;
-
-                    //Borrame
-                    GetComponent<Renderer>().material.color = Color.white;
-                }
-                else if(!generator.terrainTiles[x + 1, z].hasSearched)
-                {
-                    // Suma un paso al siguiente tile
-                    generator.terrainTiles[x + 1, z].steps = steps + 1;
-                    // Indica al siguiente tile que busque al objetivo en sus vecinos
-                    generator.terrainTiles[x + 1, z].search = true;
-                }
-            }
-            
-
         }
 
         hasSearched = true;
