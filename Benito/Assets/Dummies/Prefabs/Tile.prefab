@@ -120,7 +120,3 @@ MonoBehaviour:
   reverse: 0
   backwarded: 0
   chainPositions: []
-  mXWall: {fileID: 1804017451220784, guid: f1d8d272cfac49b4ca2d6bb54f47da97, type: 2}
-  pXWall: {fileID: 1485352792423796, guid: 34c3abed31043db4f9ff1483430dedda, type: 2}
-  mZWall: {fileID: 1981236558459982, guid: b8d15ebe95ade394b9bfb0a3e0c1d1f3, type: 2}
-  pZWall: {fileID: 1045958175286474, guid: 895602d38fb646f4f87266b54f8d5fb3, type: 2}

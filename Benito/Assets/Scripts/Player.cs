@@ -16,7 +16,6 @@ public class Player : MonoBehaviour {
     private GameObject target;
     private bool move;
     private GameGenerator generator;
-    private NavMeshAgent agent;
     private TerrainTile actualTile;
 
     public int i;
@@ -25,7 +24,6 @@ public class Player : MonoBehaviour {
 	// Use this for initialization
 	void Awake () {
         generator = GameObject.FindGameObjectWithTag("GameManager").GetComponent<GameGenerator>();
-        agent = GetComponent<NavMeshAgent>();
 	}
 
     private void Start()
@@ -49,6 +47,7 @@ public class Player : MonoBehaviour {
 
             for (int i = 0; i < hits.Length; i++)
             {
+                print(hits.Length);
                 RaycastHit hit = hits[i];
                 if (hit.transform.position != transform.position && !move)
                 {
@@ -68,8 +67,9 @@ public class Player : MonoBehaviour {
             {
                 if (hit.transform.position != transform.position && !move && !hit.transform.GetComponent<TerrainTile>().completeObstacle)
                 {
+                    print(hit.transform.position);
                     target = hit.transform.gameObject;
-                    generator.terrainTiles[hit.transform.GetComponent<TerrainTile>().x, hit.transform.GetComponent<TerrainTile>().z].target = true;
+                    generator.terrainTiles[hit.transform.GetComponent<TerrainTile>().x, hit.transform.GetComponent<TerrainTile>().z].target = true;           
                     generator.terrainTiles[actualTile.x, actualTile.z].search = true;
                     move = true;
                 }
@@ -79,14 +79,14 @@ public class Player : MonoBehaviour {
 
     void Movement()
     {
-        print(pathFinded +" ; " +move);
+        //print(pathFinded +" ; " +move);
         if (move && pathFinded)
         {
             if (i >= 0)
             {
                 // Temporizador de pasos
                 stepTimer += Time.deltaTime;
-                if(stepTimer >= movementSpeed)
+                if(stepTimer >= movementSpeed ||stepTimer < movementSpeed)
                 {
                     transform.position = new Vector3(positionsToTranslate[i].x, transform.position.y, positionsToTranslate[i].z);
                     if (i == 0)

@@ -54,12 +54,12 @@ public class TerrainTile : MonoBehaviour {
         
 
         // Borrame
-        if (!backwarded)
+        if (!backwarded && !completeObstacle)
         {
             Color col = Color.red;
-            //col.r = steps * .01f;
+            col.r = steps * .01f;
             //print(0.1f * steps);
-            //GetComponent<Renderer>().material.color = col;
+            GetComponent<Renderer>().material.color = col;
         }
     }
 
@@ -72,6 +72,7 @@ public class TerrainTile : MonoBehaviour {
         if (transform.position.y < 0)
         {
             transform.position = new Vector3(transform.position.x, 0, transform.position.z);
+            positionated = true;
         }
     }
 
@@ -85,10 +86,6 @@ public class TerrainTile : MonoBehaviour {
             player.positionsToTranslate = chainPositions;
             player.pathFinded = true;
             
-
-            // Borrame
-            backwarded = true;
-            //GetComponent<Renderer>().material.color = Color.yellow;
         }
         // Si aun queda recorrido
         else
@@ -106,9 +103,6 @@ public class TerrainTile : MonoBehaviour {
                     generator.terrainTiles[x - 1, z].reverse = true;
                     // Indica a este tile que no busque mas vecinos
                     backwarded = true;
-
-                    //Borrame
-                    //generator.terrainTiles[x - 1, z].transform.GetComponent<Renderer>().material.color = Color.white;
                 }
             }
             if (x < generator.numberOfXTiles - 1)
@@ -123,9 +117,6 @@ public class TerrainTile : MonoBehaviour {
                     generator.terrainTiles[x + 1, z].reverse = true;
                     // Indica a este tile que no busque mas vecinos
                     backwarded = true;
-
-                    //Borrame
-                    //generator.terrainTiles[x + 1, z].transform.GetComponent<Renderer>().material.color = Color.white;
                 }
             }
             if (z > 0)
@@ -140,9 +131,6 @@ public class TerrainTile : MonoBehaviour {
                     generator.terrainTiles[x, z - 1].reverse = true;
                     // Indica a este tile que no busque mas vecinos
                     backwarded = true;
-
-                    //Borrame
-                   // generator.terrainTiles[x , z - 1].transform.GetComponent<Renderer>().material.color = Color.white;
                 }
             }
 
@@ -158,9 +146,6 @@ public class TerrainTile : MonoBehaviour {
                     generator.terrainTiles[x, z + 1].reverse = true;
                     // Indica a este tile que no busque mas vecinos
                     backwarded = true;
-
-                    //Borrame
-                    //generator.terrainTiles[x, z + 1].transform.GetComponent<Renderer>().material.color = Color.white;
                 }
             }
         }
@@ -261,7 +246,7 @@ public class TerrainTile : MonoBehaviour {
                         search = false;
 
                         //Borrame
-                        GetComponent<Renderer>().material.color = Color.white;
+                        //GetComponent<Renderer>().material.color = Color.white;
                     }
                     else if (!generator.terrainTiles[x, z + 1].hasSearched)
                     {

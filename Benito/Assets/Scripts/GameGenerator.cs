@@ -10,8 +10,8 @@ public class GameGenerator : MonoBehaviour {
     public bool reverseSearch;
     public TerrainTile[,] terrainTiles;
 
-	// Use this for initialization
-	void Awake () {
+    // Use this for initialization
+    void Awake () {
         terrainTiles = new TerrainTile[numberOfXTiles, numberOfZTiles];
         StartCoroutine(GenerateTerrainTiles());
 	}
