@@ -50,9 +50,11 @@ public class Player : MonoBehaviour {
             for (int i = 0; i < hits.Length; i++)
             {
                 RaycastHit hit = hits[i];
-                if (hit.transform.position != transform.position && hit.transform.tag == "Tile")
+                if (hit.transform.position != transform.position && !move)
                 {
                     target = hit.transform.gameObject;
+                    generator.terrainTiles[hit.transform.GetComponent<TerrainTile>().x, hit.transform.GetComponent<TerrainTile>().z].target = true;
+                    generator.terrainTiles[actualTile.x, actualTile.z].search = true;
                     move = true;
                 }
             }
@@ -64,7 +66,7 @@ public class Player : MonoBehaviour {
             RaycastHit hit;
             if (Physics.Raycast(ray, out hit))
             {
-                if (hit.transform.position != transform.position && !move)
+                if (hit.transform.position != transform.position && !move && !hit.transform.GetComponent<TerrainTile>().completeObstacle)
                 {
                     target = hit.transform.gameObject;
                     generator.terrainTiles[hit.transform.GetComponent<TerrainTile>().x, hit.transform.GetComponent<TerrainTile>().z].target = true;
@@ -77,6 +79,7 @@ public class Player : MonoBehaviour {
 
     void Movement()
     {
+        print(pathFinded +" ; " +move);
         if (move && pathFinded)
         {
             if (i >= 0)

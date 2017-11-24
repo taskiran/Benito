@@ -23,8 +23,16 @@ public class TerrainTile : MonoBehaviour {
     private void Start()
     {
         // Borrame
-        int i = Random.Range(0,9);
-        print(i);
+        int i = Random.Range(0,2);
+        if(i == 0 && (x != 0 && z != 0))
+        {
+            completeObstacle = true;
+            Color col = Color.red;
+            GetComponent<Renderer>().material.color = col;
+        }
+
+
+
     }
 
     private void Update()
@@ -161,7 +169,7 @@ public class TerrainTile : MonoBehaviour {
     void AddPositionToNeighbours()
     {
         // Si aun no se encontrado al objetivo...
-        if (!player.pathFinded)
+        if (!player.pathFinded && !completeObstacle)
         {
             // +X
             if (!mZObstacle)
