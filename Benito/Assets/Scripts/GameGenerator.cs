@@ -5,9 +5,8 @@ using UnityEngine;
 public class GameGenerator : MonoBehaviour {
 
     public int numberOfZTiles, numberOfXTiles;
-    public GameObject tilePrefab, terrainTilesParent, wallPrefab;
+    public GameObject tilePrefab, terrainTilesParent;
     public float spaceBetweenTiles, heightSpawn = 3f, spawnSpeed = .0005f;
-    public bool reverseSearch;
     public TerrainTile[,] terrainTiles;
 
     // Use this for initialization
@@ -27,7 +26,7 @@ public class GameGenerator : MonoBehaviour {
         {
             for (int x = 0; x > -numberOfXTiles; x--)
             {
-                GameObject tile = Instantiate(tilePrefab, new Vector3(z + (spaceBetweenTiles * z), heightSpawn, x + (spaceBetweenTiles * x)), Quaternion.identity);
+                GameObject tile = Instantiate(tilePrefab, new Vector3(x + (spaceBetweenTiles * x), heightSpawn, z + (spaceBetweenTiles * z)), Quaternion.identity);
                 tile.transform.parent = terrainTilesParent.transform;
                 tile.GetComponent<TerrainTile>().z = z * -1;
                 tile.GetComponent<TerrainTile>().x = x * -1;

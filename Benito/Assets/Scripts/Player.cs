@@ -5,59 +5,58 @@ using UnityEngine.AI;
 
 public class Player : MonoBehaviour {
 
+    [Header("Player Stats")]
     public float movementSpeed = 10f;
-    public float stepSpeed = 0.03f;
 
-    [HideInInspector]
-    public bool collidedFront, collidedBack, collidedLeft, collidedRight, pathFinded;
+    [Header("Gestión de camara")]
+    public float farCameraOrtographicSize = 20f;
+    public float changeCameraSizeSpeed = 10f;
 
-    public List<Vector3> positionsToTranslate = new List<Vector3>();
-
-    private GameObject target;
-    private bool move;
     private GameGenerator generator;
-    private TerrainTile actualTile;
+    private NavMeshAgent agent;
+    private Vector3 destination;
 
-    public int i;
-    private float stepTimer = 0;
+    private bool farCamActive = false;
+    private float startCameraOrtographicSize = 0f;
 
-	// Use this for initialization
+    private float ortographicSize;
+
+	/*** Awake ***/
 	void Awake () {
         generator = GameObject.FindGameObjectWithTag("GameManager").GetComponent<GameGenerator>();
+        agent = GetComponent<NavMeshAgent>();
 	}
 
+    /*** Start ***/
     private void Start()
     {
-        i = 0;
-        actualTile = generator.terrainTiles[0, 0];
+        destination = transform.position;
+        agent.speed = movementSpeed;
+
+        startCameraOrtographicSize = ortographicSize = Camera.main.orthographicSize;
     }
 
-    // Update is called once per frame
+    /*** Update ***/
     void Update () {
-        CheckInput();
+        // Movimiento
+        CheckMovementInput();
         Movement();
+
+        // Gestion de camaras
+        CameraManagement();
 	}
 
-    void CheckInput()
+    /*** Metodo para la gestion del input del jugador ***/
+    void CheckMovementInput()
     {
         if(Input.touchCount > 0)
         {
-            RaycastHit[] hits;
-            hits = Physics.RaycastAll(Camera.main.ScreenPointToRay(Input.GetTouch(0).position));
-
-            for (int i = 0; i < hits.Length; i++)
+            Ray ray = Camera.main.ScreenPointToRay(Input.GetTouch(0).position);
+            RaycastHit hit;
+            if(Physics.Raycast(ray, out hit))
             {
-                print(hits.Length);
-                RaycastHit hit = hits[i];
-                if (hit.transform.position != transform.position && !move)
-                {
-                    target = hit.transform.gameObject;
-                    generator.terrainTiles[hit.transform.GetComponent<TerrainTile>().x, hit.transform.GetComponent<TerrainTile>().z].target = true;
-                    generator.terrainTiles[actualTile.x, actualTile.z].search = true;
-                    move = true;
-                }
+                destination = hit.transform.position;
             }
-
         }
         else if (Input.GetMouseButtonDown(0))
         {
@@ -65,59 +64,44 @@ public class Player : MonoBehaviour {
             RaycastHit hit;
             if (Physics.Raycast(ray, out hit))
             {
-                if (hit.transform.position != transform.position && !move && !hit.transform.GetComponent<TerrainTile>().completeObstacle)
+                if (hit.transform.position != transform.position)
                 {
-                    print(hit.transform.position);
-                    target = hit.transform.gameObject;
-                    generator.terrainTiles[hit.transform.GetComponent<TerrainTile>().x, hit.transform.GetComponent<TerrainTile>().z].target = true;           
-                    generator.terrainTiles[actualTile.x, actualTile.z].search = true;
-                    move = true;
+                    destination = hit.transform.position;
                 }
             }
         }
     }
 
+    /*** Metodo para el control de movimiento del player ***/
     void Movement()
     {
-        //print(pathFinded +" ; " +move);
-        if (move && pathFinded)
-        {
-            if (i >= 0)
-            {
-                // Temporizador de pasos
-                stepTimer += Time.deltaTime;
-                if(stepTimer >= movementSpeed ||stepTimer < movementSpeed)
-                {
-                    transform.position = new Vector3(positionsToTranslate[i].x, transform.position.y, positionsToTranslate[i].z);
-                    if (i == 0)
-                    {
-                        i = 0;
-                        transform.position = new Vector3(target.transform.position.x, transform.position.y, target.transform.position.z);
-                        actualTile = target.GetComponent<TerrainTile>();
-                        move = false;
-                        pathFinded = false;
-                        generator.reverseSearch = false;
-                        foreach (TerrainTile tile in generator.terrainTiles)
-                        {
-                            tile.chainPositions.Clear();
-                            tile.target = false;
-                            tile.search = false;
-                            tile.hasSearched = false;
-                            tile.reverse = false;
-                            tile.backwarded = false;
-                            tile.steps = 0;
-                        }
-                    }
-                    else
-                    {
-                        i--;
-                        stepTimer = 0;
-                    }
-                    
-                }
+        Vector3 _destination = new Vector3(destination.x, transform.position.y, destination.z);
+        agent.SetDestination(_destination);
+    }
 
-                
-            }
+    /*** Metodo para el manejo de la camara ***/
+    void CameraManagement()
+    {
+        if (Input.GetKeyDown(KeyCode.Space))
+        {
+            farCamActive = !farCamActive;
         }
+
+        if (farCamActive)
+        {
+            ortographicSize = Mathf.Lerp(ortographicSize, farCameraOrtographicSize, changeCameraSizeSpeed * Time.deltaTime);
+        }
+        else
+        {
+            ortographicSize = Mathf.Lerp(ortographicSize, startCameraOrtographicSize, changeCameraSizeSpeed * Time.deltaTime);
+        }
+
+        Camera.main.orthographicSize = ortographicSize;
+
+    }
+
+    public void ChangeCameraFar()
+    {
+        farCamActive = !farCamActive;
     }
 }
