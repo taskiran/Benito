@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AI;
+using Cinemachine;
 
 public class Player : MonoBehaviour {
 
@@ -11,12 +12,11 @@ public class Player : MonoBehaviour {
     [Header("Gestión de camara")]
     public float farCameraOrtographicSize = 20f;
     public float changeCameraSizeSpeed = 10f;
-    public GameObject camerClose;
-    public GameObject cameraFar;
 
     private GameGenerator generator;
     private NavMeshAgent agent;
     private Vector3 destination;
+    public CinemachineVirtualCamera CMCamera;
 
     private bool farCamActive = false;
     private float startCameraOrtographicSize = 0f;
@@ -35,8 +35,7 @@ public class Player : MonoBehaviour {
         destination = transform.position;
         agent.speed = movementSpeed;
 
-        cameraFar.SetActive(false);
-        startCameraOrtographicSize = ortographicSize = Camera.main.orthographicSize;
+        startCameraOrtographicSize = ortographicSize = CMCamera.m_Lens.OrthographicSize;
     }
 
     /*** Update ***/
@@ -93,12 +92,12 @@ public class Player : MonoBehaviour {
         if (farCamActive)
         {
             ortographicSize = Mathf.Lerp(ortographicSize, farCameraOrtographicSize, changeCameraSizeSpeed * Time.deltaTime);
-            cameraFar.SetActive(true);
+            CMCamera.m_Lens.OrthographicSize = ortographicSize;
         }
         else
         {
             ortographicSize = Mathf.Lerp(ortographicSize, startCameraOrtographicSize, changeCameraSizeSpeed * Time.deltaTime);
-            cameraFar.SetActive(false);
+            CMCamera.m_Lens.OrthographicSize = ortographicSize;
         }
 
         Camera.main.orthographicSize = ortographicSize;
