@@ -11,6 +11,8 @@ public class Player : MonoBehaviour {
     [Header("Gestión de camara")]
     public float farCameraOrtographicSize = 20f;
     public float changeCameraSizeSpeed = 10f;
+    public GameObject camerClose;
+    public GameObject cameraFar;
 
     private GameGenerator generator;
     private NavMeshAgent agent;
@@ -33,6 +35,7 @@ public class Player : MonoBehaviour {
         destination = transform.position;
         agent.speed = movementSpeed;
 
+        cameraFar.SetActive(false);
         startCameraOrtographicSize = ortographicSize = Camera.main.orthographicSize;
     }
 
@@ -90,10 +93,12 @@ public class Player : MonoBehaviour {
         if (farCamActive)
         {
             ortographicSize = Mathf.Lerp(ortographicSize, farCameraOrtographicSize, changeCameraSizeSpeed * Time.deltaTime);
+            cameraFar.SetActive(true);
         }
         else
         {
             ortographicSize = Mathf.Lerp(ortographicSize, startCameraOrtographicSize, changeCameraSizeSpeed * Time.deltaTime);
+            cameraFar.SetActive(false);
         }
 
         Camera.main.orthographicSize = ortographicSize;
