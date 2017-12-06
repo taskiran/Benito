@@ -1,8 +1,17 @@
-﻿using System.Collections;
+﻿/*---------------------------------------------------------------------------
+ * Benito: El centinela de la escuela
+ * Controlador del jugador
+ * © David Basagaña Mimoso
+ *---------------------------------------------------------------------------
+ */
+
+
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AI;
 using Cinemachine;
+using UnityEngine.SceneManagement;
 
 public class Player : MonoBehaviour {
 
@@ -22,11 +31,14 @@ public class Player : MonoBehaviour {
     private float startCameraOrtographicSize = 0f;
 
     private float ortographicSize;
+    [HideInInspector]
+    public GameObject arrow;
 
 	/*** Awake ***/
 	void Awake () {
         generator = GameObject.FindGameObjectWithTag("GameManager").GetComponent<GameGenerator>();
         agent = GetComponent<NavMeshAgent>();
+        arrow = transform.GetChild(0).transform.gameObject;
 	}
 
     /*** Start ***/
@@ -108,4 +120,20 @@ public class Player : MonoBehaviour {
     {
         farCamActive = !farCamActive;
     }
+
+    private void OnTriggerEnter(Collider other)
+    {
+        if(other.tag == "TuberíasLocasTrigger")
+        {
+            SceneManager.LoadScene(1);
+        }
+    }
 }
+
+
+/*---------------------------------------------------------------------------
+ * Benito: El centinela de la escuela
+ * Controlador del jugador
+ * © David Basagaña Mimoso
+ *---------------------------------------------------------------------------
+ */

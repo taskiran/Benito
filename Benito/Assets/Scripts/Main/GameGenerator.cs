@@ -1,4 +1,12 @@
-﻿using System.Collections;
+﻿/*---------------------------------------------------------------------------
+ * Benito: El centinela de la escuela
+ * Generador del escenario principal
+ * © David Basagaña Mimoso
+ *---------------------------------------------------------------------------
+ */
+
+
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -37,3 +45,11 @@ public class GameGenerator : MonoBehaviour {
         }
     }
 }
+
+
+/*---------------------------------------------------------------------------
+ * Benito: El centinela de la escuela
+ * Generador del escenario principal
+ * © David Basagaña Mimoso
+ *---------------------------------------------------------------------------
+ */

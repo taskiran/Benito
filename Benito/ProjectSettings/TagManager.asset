@@ -8,6 +8,10 @@ TagManager:
   - GameManager
   - Obstacle
   - Tile
+  - Ground
+  - Canvas
+  - "Tuber\xEDasLocasTrigger"
+  - PintarTrigger
   layers:
   - Default
   - TransparentFX
