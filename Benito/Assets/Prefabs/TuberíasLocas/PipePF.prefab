@@ -190,6 +190,17 @@ MonoBehaviour:
   IDropsSprites:
   - {fileID: 21300000, guid: 331107f2cf46be344972781fdb4beacf, type: 3}
   - {fileID: 21300000, guid: ad6b9074c04439c4cb04a30d4d7d948e, type: 3}
+  LMasksSprites:
+  - {fileID: 21300000, guid: 78c79968fc5beb0408b6f7d8dc40a2ec, type: 3}
+  - {fileID: 21300000, guid: 06a0341f98ce9724b861aa61ac885b86, type: 3}
+  - {fileID: 21300000, guid: 5977ba5a551d07748806da6aac1e4fec, type: 3}
+  - {fileID: 21300000, guid: b336636ee754fa244becc868becb6670, type: 3}
+  TMaskSprite: {fileID: 21300000, guid: 64e70899ba2e2d549ab5623e12443ec8, type: 3}
+  startMaskSprite: {fileID: 21300000, guid: bbb2ac89846a5b94aa5e636d3cd4c65c, type: 3}
+  endMaskSprite: {fileID: 21300000, guid: 1dc130f2bc7c9ed4e85ab9d4c1f58f20, type: 3}
+  IMasksSprites:
+  - {fileID: 21300000, guid: dbb924a3211317d4889fb8ca108d65bb, type: 3}
+  - {fileID: 21300000, guid: 28bba5e37aba70440a01c340bc08b40a, type: 3}
   type: 0
   x: 0
   y: 0

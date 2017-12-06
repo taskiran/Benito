@@ -127,6 +127,10 @@ public class Player : MonoBehaviour {
         {
             SceneManager.LoadScene(1);
         }
+        else if (other.tag == "PintarTrigger")
+        {
+            SceneManager.LoadScene("Humedades");
+        }
     }
 }
 

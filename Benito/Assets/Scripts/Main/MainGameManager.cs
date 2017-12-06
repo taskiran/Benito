@@ -27,6 +27,8 @@ public class MainGameManager : MonoBehaviour {
     private GameObject player;
     private List<GameObject> miniGames = new List<GameObject>();
     private GameObject arrow;
+    private List<Vector3> posWithTuberias = new List<Vector3>();
+    private List<Vector3> posWithPintar = new List<Vector3>();
 
     private uint mgn = 0;
 
@@ -83,13 +85,37 @@ public class MainGameManager : MonoBehaviour {
         // Posicion
         if(i == 0)
         {
-            int p = Random.Range(0, tuberiasLocasSpawnPositions.Length);
+            if(posWithTuberias.Count >= tuberiasLocasSpawnPositions.Length)
+            {
+                return;
+            }
+            bool posFinded = false;
+            int p = 0;
+            while (!posFinded)
+            {
+                p = Random.Range(0, tuberiasLocasSpawnPositions.Length);
+                if (!posWithTuberias.Contains(tuberiasLocasSpawnPositions[p].transform.position))
+                    posFinded = true;
+            }
             pos = tuberiasLocasSpawnPositions[p].transform.position;
+            posWithTuberias.Add(tuberiasLocasSpawnPositions[p].transform.position);
         }
         else if (i == 1)
         {
-            int p = Random.Range(0, pintarSpawnPositions.Length);
-            pos = tuberiasLocasSpawnPositions[p].transform.position;
+            if (posWithPintar.Count >= pintarSpawnPositions.Length)
+            {
+                return;
+            }
+            bool posFinded = false;
+            int p = 0;
+            while (!posFinded)
+            {
+                p = Random.Range(0, pintarSpawnPositions.Length);
+                if (!posWithPintar.Contains(pintarSpawnPositions[p].transform.position))
+                    posFinded = true;
+            }
+            pos = pintarSpawnPositions[p].transform.position;
+            posWithPintar.Add(pintarSpawnPositions[p].transform.position);
         }
         GameObject inst = Instantiate(miniGame, pos, Quaternion.identity);
         inst.transform.parent = miniGamesParent.transform;

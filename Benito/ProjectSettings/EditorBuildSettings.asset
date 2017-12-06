@@ -11,3 +11,6 @@ EditorBuildSettings:
   - enabled: 1
     path: "Assets/Scenes/Tuber\xEDasLocas.unity"
     guid: 62de444dfa1ec254f94d2c16661738e4
+  - enabled: 1
+    path: Assets/Scenes/Humedades.unity
+    guid: f53a94e088d524a4194f5ac64b00b4b5

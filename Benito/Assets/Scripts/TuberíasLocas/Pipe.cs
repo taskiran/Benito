@@ -19,6 +19,9 @@ public class Pipe : MonoBehaviour {
     public Sprite[] LDropsSprites;
     public Sprite TDropSprite, startDropSprite, endDropSprite;
     public Sprite[] IDropsSprites;
+    public Sprite[] LMasksSprites;
+    public Sprite TMaskSprite, startMaskSprite, endMaskSprite;
+    public Sprite[] IMasksSprites;
 
     [HideInInspector]
     public int type = 0, x, y, preType = 0;
@@ -60,7 +63,7 @@ public class Pipe : MonoBehaviour {
         {
             sRenderer.sprite = startSprite;
             waterDropsObject.GetComponent<SpriteRenderer>().sprite = startDropSprite;
-            transform.GetComponent<SpriteMask>().sprite = startSprite;
+            transform.GetComponent<SpriteMask>().sprite = startMaskSprite;
             
             if (y > 0)
             {
@@ -83,7 +86,7 @@ public class Pipe : MonoBehaviour {
         else if (endPipe)
         {
             sRenderer.sprite = endSprite;
-            transform.GetComponent<SpriteMask>().sprite = endSprite;
+            transform.GetComponent<SpriteMask>().sprite = endMaskSprite;
             waterDropsObject.GetComponent<SpriteRenderer>().sprite = endDropSprite;
 
             waterParent.transform.localPosition = new Vector3(0, -1, 0);
@@ -130,7 +133,7 @@ public class Pipe : MonoBehaviour {
         {
             case (0):   // L
                 sRenderer.sprite = LSprites[ind];
-                transform.GetComponent<SpriteMask>().sprite = LSprites[ind];
+                transform.GetComponent<SpriteMask>().sprite = LMasksSprites[ind];
                 waterDropsObject.GetComponent<SpriteRenderer>().sprite = LDropsSprites[ind];
 
                 if (ind == 0)   // D-R
@@ -421,7 +424,7 @@ public class Pipe : MonoBehaviour {
                 break;
             case (1):   // T
                 sRenderer.sprite = TSprite;
-                transform.GetComponent<SpriteMask>().sprite = TSprite;
+                transform.GetComponent<SpriteMask>().sprite = TMaskSprite;
                 waterDropsObject.GetComponent<SpriteRenderer>().sprite = TDropSprite;
 
                 connectedDown = true;
@@ -547,7 +550,7 @@ public class Pipe : MonoBehaviour {
                 break;
             case (2):   // I
                 sRenderer.sprite = ISprites[ind];
-                transform.GetComponent<SpriteMask>().sprite = ISprites[ind];
+                transform.GetComponent<SpriteMask>().sprite = IMasksSprites[ind];
                 waterDropsObject.GetComponent<SpriteRenderer>().sprite = IDropsSprites[ind];
 
                 if (ind == 0)   // L-R
