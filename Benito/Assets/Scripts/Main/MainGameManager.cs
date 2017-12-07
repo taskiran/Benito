@@ -9,9 +9,18 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
+using UnityEngine.SceneManagement;
 
 public class MainGameManager : MonoBehaviour {
 
+    /* Propiedades públicas */
+    [Header("Gestión del día")]
+    public float daySecondsDuration = 10f;
+    public GameObject directionalLight;
+    public Text dayTimerTxt;
+
+    [Header("Gestión de minijuegos")]
     public GameObject[] miniGamesPrefabs;
     public float[] miniGamesProbabilities;
     public Transform[] tuberiasLocasSpawnPositions;
@@ -21,6 +30,16 @@ public class MainGameManager : MonoBehaviour {
     [Header("Maximo de minijuegos por cada minijuego")]
     public uint maxMiniGames = 2;
 
+    [Header("Interfaz")]
+    public Image fadeImage;
+    public float fadeTime = 2f;
+    [HideInInspector]
+    public bool fadeOut;
+    [HideInInspector]
+    public string sceneToFadeName;
+
+    /* Propiedades privadas */
+    //-------------------Gestión de minijuegos------------------//
     private float _spawnTimer;
     private uint[] numberOfMinigames;
     private GameObject nearesMiniGame;
@@ -30,20 +49,45 @@ public class MainGameManager : MonoBehaviour {
     private List<Vector3> posWithTuberias = new List<Vector3>();
     private List<Vector3> posWithPintar = new List<Vector3>();
 
-    private uint mgn = 0;
+    private uint mgn = 0;   // Nombre del minijuego a instanciar
 
-	// Use this for initialization
-	void Start () {
+    //-------------------Gestión el día-------------------------//
+    private bool dayEnded = false;
+    private float dayTimer = 0.0f;
+    private float sunRotation;
+    private float dayTimeNormalized;
+    private Quaternion sunRotQuat;
+    private float timeLeft;
+    private float minLeft;
+    private float secondsLeft;
+
+    //-------------------Interfaz--------------------------------//
+    private float fadeTimer = 0f;
+
+    /*** START ***/
+    void Start () {
+        fadeImage.gameObject.SetActive(false);
+
         player = GameObject.FindGameObjectWithTag("Player");
         arrow = player.transform.GetChild(0).transform.gameObject;
         _spawnTimer = spawnTimer;
         numberOfMinigames = new uint[miniGamesPrefabs.Length];
+
+        dayTimer = 0.0f;
+        fadeTimer = 0f;
 	}
 	
-	// Update is called once per frame
+	/*** UPDATE ***/
 	void Update () {
+        Day();
+        MinigamesManager();
+        Interface();
+	}
+
+    void MinigamesManager()
+    {
         _spawnTimer -= Time.deltaTime;
-        if(_spawnTimer <= 0)
+        if (_spawnTimer <= 0)
         {
             // Reinicia el temporizador
             _spawnTimer = spawnTimer;
@@ -51,13 +95,12 @@ public class MainGameManager : MonoBehaviour {
             GenerateMinigame();
         }
 
-        if(miniGames.Count > 0)
+        if (miniGames.Count > 0)
         {
             Vector3 r = new Vector3(GetNearesMiniGame().transform.position.x, arrow.transform.position.y, GetNearesMiniGame().transform.position.z);
             arrow.transform.LookAt(r);
         }
-        
-	}
+    }
 
     void GenerateMinigame()
     {
@@ -136,8 +179,54 @@ public class MainGameManager : MonoBehaviour {
                 nearestObject = item;
             }
         }
-        print(nearestObject.name);
+        //print(nearestObject.name);
         return nearestObject;
+    }
+    
+    void Day()
+    {
+        // Temporizador
+        if(!dayEnded)
+            dayTimer += Time.deltaTime;
+
+        // Muestra el tiempo restante
+        timeLeft = daySecondsDuration - dayTimer;
+        minLeft = Mathf.Floor(timeLeft / 60);
+        secondsLeft = (timeLeft % 60);
+        dayTimerTxt.text = minLeft.ToString("00")+":"+secondsLeft.ToString("00");
+
+        // Calcua el tiempo normalizado
+        dayTimeNormalized = dayTimer / daySecondsDuration;
+        // Calcula la rotación sol
+        sunRotation = dayTimeNormalized * 190f;
+        // Aplica la rotación del sol
+        sunRotQuat = Quaternion.Euler(sunRotation, 0, 0);
+        directionalLight.transform.rotation = sunRotQuat;
+
+        // Si el tiempo se ha acabado, termina el dia
+        if (dayTimer >= daySecondsDuration)
+        {
+            dayEnded = true;
+        }
+    }
+
+    void Interface()
+    {
+        if (fadeOut)
+        {
+            fadeImage.gameObject.SetActive(true);
+
+            fadeTimer += Time.deltaTime;
+
+            Color col = fadeImage.color;
+            col.a = fadeTimer / fadeTime;
+            fadeImage.color = col;
+
+            if(fadeTimer >= fadeTime)
+            {
+                SceneManager.LoadScene(sceneToFadeName);
+            }
+        }
     }
 }
 

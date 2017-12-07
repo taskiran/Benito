@@ -1,4 +1,12 @@
-﻿using System.Collections;
+﻿/*---------------------------------------------------------------------------
+ * Benito: El centinela de la escuela
+ * Controlador de los tiles
+ * © David Basagaña Mimoso
+ *---------------------------------------------------------------------------
+ */
+
+
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -37,3 +45,11 @@ public class TerrainTile : MonoBehaviour {
     }
         
 }
+
+
+/*---------------------------------------------------------------------------
+ * Benito: El centinela de la escuela
+ * Controlador de los tiles
+ * © David Basagaña Mimoso
+ *---------------------------------------------------------------------------
+ */

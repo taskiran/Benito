@@ -45,7 +45,7 @@ public class GameManager : MonoBehaviour {
     // Update is called once per frame
     void Update () {
         // Bucle de juego sin ganar
-        if (!win)
+        if (!win && !gameOver)
         {
             GetPlayerInput();
             ManageWater();

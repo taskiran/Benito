@@ -15,6 +15,7 @@ using UnityEngine.SceneManagement;
 
 public class Player : MonoBehaviour {
 
+    /* Propiedades públicas */
     [Header("Player Stats")]
     public float movementSpeed = 10f;
 
@@ -22,6 +23,10 @@ public class Player : MonoBehaviour {
     public float farCameraOrtographicSize = 20f;
     public float changeCameraSizeSpeed = 10f;
 
+    [HideInInspector]
+    public GameObject arrow;
+
+    /* Propiedades privadas */
     private GameGenerator generator;
     private NavMeshAgent agent;
     private Vector3 destination;
@@ -31,12 +36,13 @@ public class Player : MonoBehaviour {
     private float startCameraOrtographicSize = 0f;
 
     private float ortographicSize;
-    [HideInInspector]
-    public GameObject arrow;
 
+    private MainGameManager gameManager;
+    
 	/*** Awake ***/
 	void Awake () {
         generator = GameObject.FindGameObjectWithTag("GameManager").GetComponent<GameGenerator>();
+        gameManager = GameObject.FindGameObjectWithTag("GameManager").GetComponent<MainGameManager>();
         agent = GetComponent<NavMeshAgent>();
         arrow = transform.GetChild(0).transform.gameObject;
 	}
@@ -53,8 +59,12 @@ public class Player : MonoBehaviour {
     /*** Update ***/
     void Update () {
         // Movimiento
-        CheckMovementInput();
-        Movement();
+        if (!gameManager.fadeOut)
+        {
+            CheckMovementInput();
+            Movement();
+        }
+        
 
         // Gestion de camaras
         CameraManagement();
@@ -63,24 +73,34 @@ public class Player : MonoBehaviour {
     /*** Metodo para la gestion del input del jugador ***/
     void CheckMovementInput()
     {
-        if(Input.touchCount > 0)
+        if (Application.isMobilePlatform)
         {
-            Ray ray = Camera.main.ScreenPointToRay(Input.GetTouch(0).position);
-            RaycastHit hit;
-            if(Physics.Raycast(ray, out hit))
+            if (Input.touchCount > 0)
             {
-                destination = hit.transform.position;
+                RaycastHit[] hits = Physics.RaycastAll(Camera.main.ScreenPointToRay(Input.GetTouch(0).position));
+                for (int i = 0; i < hits.Length; i++)
+                {
+                    RaycastHit hit = hits[i];
+                    if (hit.transform.gameObject.tag == "Tile")
+                    {
+                        destination = hit.transform.position;
+                    }
+                }
             }
         }
-        else if (Input.GetMouseButtonDown(0))
+        else
         {
-            Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
-            RaycastHit hit;
-            if (Physics.Raycast(ray, out hit))
+            if (Input.GetMouseButtonDown(0))
             {
-                if (hit.transform.position != transform.position)
+                RaycastHit[] hits;
+                hits = Physics.RaycastAll(Camera.main.ScreenPointToRay(Input.mousePosition));
+                for (int i = 0; i < hits.Length; i++)
                 {
-                    destination = hit.transform.position;
+                    RaycastHit hit = hits[i];
+                    if (hit.transform.gameObject.tag == "Tile")
+                    {
+                        destination = hit.transform.position;
+                    }
                 }
             }
         }
@@ -125,11 +145,13 @@ public class Player : MonoBehaviour {
     {
         if(other.tag == "TuberíasLocasTrigger")
         {
-            SceneManager.LoadScene(1);
+            gameManager.sceneToFadeName = "TuberíasLocas";
+            gameManager.fadeOut = true;
         }
         else if (other.tag == "PintarTrigger")
         {
-            SceneManager.LoadScene("Humedades");
+            gameManager.sceneToFadeName = "Humedades";
+            gameManager.fadeOut = true;
         }
     }
 }
