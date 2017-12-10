@@ -29,27 +29,38 @@ public class MainGameManager : MonoBehaviour {
     public GameObject miniGamesParent;
     [Header("Maximo de minijuegos por cada minijuego")]
     public uint maxMiniGames = 2;
+    [Header("UI")]
+    public GameObject goToMinigamePanel;
+    public Text goToMinigameText;
+    [HideInInspector]
+    public int minigameToGoType;
 
     [Header("Interfaz")]
     public Image fadeImage;
     public float fadeTime = 2f;
     [HideInInspector]
-    public bool fadeOut;
+    public bool fadeOut, onPanel;
     [HideInInspector]
     public string sceneToFadeName;
 
     /* Propiedades privadas */
     //-------------------Gestión de minijuegos------------------//
     private float _spawnTimer;
-    private uint[] numberOfMinigames;
+    [HideInInspector]
+    public uint[] numberOfMinigames;
     private GameObject nearesMiniGame;
     private GameObject player;
-    private List<GameObject> miniGames = new List<GameObject>();
+    [HideInInspector]
+    public List<GameObject> miniGames = new List<GameObject>();
     private GameObject arrow;
-    private List<Vector3> posWithTuberias = new List<Vector3>();
-    private List<Vector3> posWithPintar = new List<Vector3>();
+    [HideInInspector]
+    public List<Vector3> posWithTuberias = new List<Vector3>();
+    [HideInInspector]
+    public List<Vector3> posWithPintar = new List<Vector3>();
 
     private uint mgn = 0;   // Nombre del minijuego a instanciar
+
+    private GameManagerLinker linker;
 
     //-------------------Gestión el día-------------------------//
     private bool dayEnded = false;
@@ -67,11 +78,15 @@ public class MainGameManager : MonoBehaviour {
     /*** START ***/
     void Start () {
         fadeImage.gameObject.SetActive(false);
+        goToMinigamePanel.SetActive(false);
+        minigameToGoType = -1;
 
         player = GameObject.FindGameObjectWithTag("Player");
+        linker = GameObject.FindGameObjectWithTag("GameManagerLinker").GetComponent<GameManagerLinker>();
         arrow = player.transform.GetChild(0).transform.gameObject;
         _spawnTimer = spawnTimer;
-        numberOfMinigames = new uint[miniGamesPrefabs.Length];
+        if(numberOfMinigames.Length == 0)
+            numberOfMinigames = new uint[miniGamesPrefabs.Length];
 
         dayTimer = 0.0f;
         fadeTimer = 0f;
@@ -80,10 +95,11 @@ public class MainGameManager : MonoBehaviour {
 	/*** UPDATE ***/
 	void Update () {
         Day();
-        MinigamesManager();
         Interface();
+        MinigamesManager();
 	}
 
+    /*** Metodo para instanciar minijuegos y controlar la flecha ***/
     void MinigamesManager()
     {
         _spawnTimer -= Time.deltaTime;
@@ -165,6 +181,7 @@ public class MainGameManager : MonoBehaviour {
         inst.transform.name = "MiniGame n: " + mgn;
         mgn++;
         miniGames.Add(inst);
+        inst.GetComponent<Minigame>().minigameID = miniGames.Count - 1;
     }
 
     GameObject GetNearesMiniGame()
@@ -212,6 +229,23 @@ public class MainGameManager : MonoBehaviour {
 
     void Interface()
     {
+        if(minigameToGoType != -1)
+        {
+            onPanel = true;
+            goToMinigamePanel.SetActive(true);
+            switch (minigameToGoType)
+            {
+                case (0):
+                    goToMinigameText.text = "Tuberías Locas";
+                    sceneToFadeName = "TuberíasLocas";
+                    break;
+                case (1):
+                    goToMinigameText.text = "Humedades";
+                    sceneToFadeName = "Humedades";
+                    break;
+            }
+        }
+
         if (fadeOut)
         {
             fadeImage.gameObject.SetActive(true);
@@ -224,9 +258,37 @@ public class MainGameManager : MonoBehaviour {
 
             if(fadeTimer >= fadeTime)
             {
+                minigameToGoType = -1;
+                fadeOut = false;
+                onPanel = false;
+
+                linker.posWithTuberias = posWithTuberias;
+                linker.posWithPintar = posWithPintar;
+                linker.miniGames = miniGames;
+                linker.numberOfMinigames = numberOfMinigames;
+
                 SceneManager.LoadScene(sceneToFadeName);
             }
         }
+    }
+
+    public void DestroyMiniGameAt(int id)
+    {
+        miniGames.RemoveAt(id);
+    }
+
+    /*** BUTTONS ***/
+    public void GoToMinigame()
+    {
+        fadeOut = true;
+        minigameToGoType = -1;
+        goToMinigamePanel.SetActive(false);
+    }
+    public void CancelGoToMinigamePanel()
+    {
+        onPanel = false;
+        minigameToGoType = -1;
+        goToMinigamePanel.SetActive(false);
     }
 }
 

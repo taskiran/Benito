@@ -47,15 +47,15 @@ public class Pipe : MonoBehaviour {
         // Enlaces
         waterParent = transform.GetChild(0).gameObject;
         sRenderer = GetComponent<SpriteRenderer>();
-        generator = GameObject.Find("GameManager").GetComponent<Generator>();
-        gameManager = GameObject.Find("GameManager").GetComponent<GameManager>();
+        generator = GameObject.Find("TLGameManager").GetComponent<Generator>();
+        gameManager = GameObject.Find("TLGameManager").GetComponent<GameManager>();
         waterSpeed = gameManager.waterSpeed;
         waterDropsObject = transform.GetChild(0).transform.GetChild(1).transform.gameObject;
     }
 
     /*** START ***/
     void Start () {
-        
+
         // Inicializacion de las tuberias
         scale = transform.localScale.x;
         // Tuberia especial

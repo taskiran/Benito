@@ -21,7 +21,7 @@ public class TerrainTile : MonoBehaviour {
 
     private void Awake()
     {
-        generator = GameObject.FindGameObjectWithTag("GameManager").GetComponent<GameGenerator>();
+        generator = GameObject.FindGameObjectWithTag("MainGameManager").GetComponent<GameGenerator>();
         player = GameObject.FindGameObjectWithTag("Player").GetComponent<Player>();
     }
 

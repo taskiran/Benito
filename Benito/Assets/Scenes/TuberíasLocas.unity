@@ -638,8 +638,8 @@ GameObject:
   - component: {fileID: 421342141}
   - component: {fileID: 421342143}
   m_Layer: 0
-  m_Name: GameManager
-  m_TagString: Untagged
+  m_Name: TLGameManager
+  m_TagString: GameManager
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0

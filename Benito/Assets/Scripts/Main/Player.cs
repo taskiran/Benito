@@ -38,11 +38,13 @@ public class Player : MonoBehaviour {
     private float ortographicSize;
 
     private MainGameManager gameManager;
+    private GameManagerLinker linker;
     
 	/*** Awake ***/
 	void Awake () {
-        generator = GameObject.FindGameObjectWithTag("GameManager").GetComponent<GameGenerator>();
-        gameManager = GameObject.FindGameObjectWithTag("GameManager").GetComponent<MainGameManager>();
+        generator = GameObject.FindGameObjectWithTag("MainGameManager").GetComponent<GameGenerator>();
+        gameManager = GameObject.FindGameObjectWithTag("MainGameManager").GetComponent<MainGameManager>();
+        linker = GameObject.FindGameObjectWithTag("GameManagerLinker").GetComponent<GameManagerLinker>();
         agent = GetComponent<NavMeshAgent>();
         arrow = transform.GetChild(0).transform.gameObject;
 	}
@@ -59,7 +61,7 @@ public class Player : MonoBehaviour {
     /*** Update ***/
     void Update () {
         // Movimiento
-        if (!gameManager.fadeOut)
+        if (!gameManager.fadeOut && !gameManager.onPanel)
         {
             CheckMovementInput();
             Movement();
@@ -75,31 +77,55 @@ public class Player : MonoBehaviour {
     {
         if (Application.isMobilePlatform)
         {
-            if (Input.touchCount > 0)
+            if (Input.touchCount > 0 && Input.GetTouch(0).phase == TouchPhase.Began)
             {
-                RaycastHit[] hits = Physics.RaycastAll(Camera.main.ScreenPointToRay(Input.GetTouch(0).position));
-                for (int i = 0; i < hits.Length; i++)
+                if (UnityEngine.EventSystems.EventSystem.current.IsPointerOverGameObject(Input.GetTouch(0).fingerId))
                 {
-                    RaycastHit hit = hits[i];
-                    if (hit.transform.gameObject.tag == "Tile")
+                    print("Touching UI");
+                }
+                else
+                {
+                    RaycastHit[] hits = Physics.RaycastAll(Camera.main.ScreenPointToRay(Input.GetTouch(0).position));
+                    for (int i = 0; i < hits.Length; i++)
                     {
-                        destination = hit.transform.position;
+                        RaycastHit hit = hits[i];
+                        if (hit.transform.gameObject.tag == "PintarTrigger"
+                            ||
+                            hit.transform.gameObject.tag == "TuberíasLocasTrigger")
+                        {
+                            destination = hit.transform.position;
+                            break;
+                        }
+                        else if (hit.transform.gameObject.tag == "Tile")
+                        {
+                            destination = hit.transform.position;
+                            break;
+                        }
                     }
                 }
+
             }
         }
         else
         {
-            if (Input.GetMouseButtonDown(0))
+            if (Input.GetMouseButtonDown(0) && !UnityEngine.EventSystems.EventSystem.current.IsPointerOverGameObject())
             {
                 RaycastHit[] hits;
                 hits = Physics.RaycastAll(Camera.main.ScreenPointToRay(Input.mousePosition));
                 for (int i = 0; i < hits.Length; i++)
                 {
                     RaycastHit hit = hits[i];
-                    if (hit.transform.gameObject.tag == "Tile")
+                    if (hit.transform.gameObject.tag == "PintarTrigger" 
+                        ||
+                        hit.transform.gameObject.tag == "TuberíasLocasTrigger")
                     {
                         destination = hit.transform.position;
+                        break;
+                    }
+                    else if (hit.transform.gameObject.tag == "Tile")
+                    {
+                        destination = hit.transform.position;
+                        break;
                     }
                 }
             }
@@ -145,13 +171,17 @@ public class Player : MonoBehaviour {
     {
         if(other.tag == "TuberíasLocasTrigger")
         {
-            gameManager.sceneToFadeName = "TuberíasLocas";
-            gameManager.fadeOut = true;
+            //gameManager.sceneToFadeName = "TuberíasLocas";
+            gameManager.minigameToGoType = 0;
+            linker.minigamePlayingID = other.transform.GetComponent<Minigame>().minigameID;
+            //gameManager.fadeOut = true;
         }
         else if (other.tag == "PintarTrigger")
         {
-            gameManager.sceneToFadeName = "Humedades";
-            gameManager.fadeOut = true;
+            //gameManager.sceneToFadeName = "Humedades";
+            gameManager.minigameToGoType = 1;
+            linker.minigamePlayingID = other.transform.GetComponent<Minigame>().minigameID;
+            //gameManager.fadeOut = true;
         }
     }
 }
