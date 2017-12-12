@@ -1,4 +1,11 @@
-﻿using System.Collections;
+﻿/*---------------------------------------------------------------------------
+ * Benito: El centinela de la escuela
+ * Enlazador entre los minijuegos y la escuela
+ * © David Basagaña Mimoso
+ *---------------------------------------------------------------------------
+ */
+
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -6,7 +13,7 @@ using UnityEngine.SceneManagement;
 public class GameManagerLinker : MonoBehaviour {
 
     [HideInInspector]
-    public int minigamePlayingID = -1;
+    public int minigamePlayingID = -1, minigameSpawnpositionID = -1, minigameType = -1, totalMinigames = -1;
 
     private GameObject mainPlayer = null;
     private MainGameManager mainGameManager;
@@ -15,6 +22,7 @@ public class GameManagerLinker : MonoBehaviour {
     public List<Vector3> posWithPintar = new List<Vector3>();
     public List<GameObject> miniGames = new List<GameObject>();
     public uint[] numberOfMinigames;
+    public bool started = false;
 
     /*** AWAKE ***/
     private void Awake()
@@ -26,30 +34,36 @@ public class GameManagerLinker : MonoBehaviour {
 
         DontDestroyOnLoad(gameObject);
 
-        if (SceneManager.GetActiveScene().name == "main")
-        {
-            //mainPlayer = GameObject.FindGameObjectWithTag("Player");
-            mainGameManager = GameObject.FindGameObjectWithTag("MainGameManager").GetComponent<MainGameManager>();
+        //if (SceneManager.GetActiveScene().name == "main")
+        //{
+        //    //mainPlayer = GameObject.FindGameObjectWithTag("Player");
+        //    mainGameManager = GameObject.FindGameObjectWithTag("MainGameManager").GetComponent<MainGameManager>();
 
-            if (minigamePlayingID != -1)
-            {
-                mainGameManager.posWithTuberias = posWithTuberias;
-                mainGameManager.posWithPintar = posWithPintar;
-                mainGameManager.miniGames = miniGames;
-                mainGameManager.numberOfMinigames = numberOfMinigames;
+        //    if (minigamePlayingID != -1)
+        //    {
+        //        print("A");
+        //        mainGameManager.posWithTuberias = posWithTuberias;
+        //        mainGameManager.posWithPintar = posWithPintar;
+        //        mainGameManager.miniGames = miniGames;
+        //        mainGameManager.numberOfMinigames = numberOfMinigames;
 
-                mainGameManager.DestroyMiniGameAt(minigamePlayingID);
-            }
-        }
+        //        //mainGameManager.DestroyMiniGameAt(minigamePlayingID);
+        //    }
+        //}
     }
 
-    // Use this for initialization
-    void Start () {
+ //   void Start () {
 		
-	}
+	//}
 	
-	// Update is called once per frame
 	void Update () {
-		
+        //print(miniGames.Count);
 	}
 }
+
+/*---------------------------------------------------------------------------
+ * Benito: El centinela de la escuela
+ * Enlazador entre los minijuegos y la escuela
+ * © David Basagaña Mimoso
+ *---------------------------------------------------------------------------
+ */

@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
-
+using UnityEngine.SceneManagement;
 public class HumedadesGameManager : MonoBehaviour {
 
     public GameObject brush, brushContainer;    // Prefab de la brocha a instanciar y contenedor de los brushed;
@@ -50,6 +50,12 @@ public class HumedadesGameManager : MonoBehaviour {
         if (brushesInstances >= 20)
         {
             SaveTexture();
+        }
+
+        // BORRAME
+        if (Input.GetKeyDown(KeyCode.Escape))
+        {
+            SceneManager.LoadScene("main");
         }
     }
 

@@ -26,7 +26,6 @@ public class MainGameManager : MonoBehaviour {
     public Transform[] tuberiasLocasSpawnPositions;
     public Transform[] pintarSpawnPositions;
     public float spawnTimer = 1f;
-    public GameObject miniGamesParent;
     [Header("Maximo de minijuegos por cada minijuego")]
     public uint maxMiniGames = 2;
     [Header("UI")]
@@ -57,6 +56,7 @@ public class MainGameManager : MonoBehaviour {
     public List<Vector3> posWithTuberias = new List<Vector3>();
     [HideInInspector]
     public List<Vector3> posWithPintar = new List<Vector3>();
+    private int totalMinigames;
 
     private uint mgn = 0;   // Nombre del minijuego a instanciar
 
@@ -77,20 +77,46 @@ public class MainGameManager : MonoBehaviour {
 
     /*** START ***/
     void Start () {
+        // Asignaciones iniciales
         fadeImage.gameObject.SetActive(false);
         goToMinigamePanel.SetActive(false);
         minigameToGoType = -1;
-
+        dayTimer = 0.0f;
+        fadeTimer = 0f;
+        totalMinigames = 0;
+        // Enlaces
         player = GameObject.FindGameObjectWithTag("Player");
+        if (!player)
+        {
+            Debug.LogError("Can't find player!");
+        }
         linker = GameObject.FindGameObjectWithTag("GameManagerLinker").GetComponent<GameManagerLinker>();
         arrow = player.transform.GetChild(0).transform.gameObject;
         _spawnTimer = spawnTimer;
         if(numberOfMinigames.Length == 0)
             numberOfMinigames = new uint[miniGamesPrefabs.Length];
 
-        dayTimer = 0.0f;
-        fadeTimer = 0f;
-	}
+        // Si se viene de un minijuego...
+        if (linker.started)
+        {
+            totalMinigames = linker.totalMinigames;
+            // Guarda las lista de posiciones de minijuegos y la lista de minijuegos con las que tiene el enlazador
+            posWithTuberias = linker.posWithTuberias;
+            posWithPintar = linker.posWithPintar;
+            miniGames = linker.miniGames;
+            numberOfMinigames = linker.numberOfMinigames;
+            // Borra el minijuego del que se ha venido de todas las listas
+            Destroy(miniGames[linker.minigamePlayingID]);
+            miniGames.Remove(miniGames[linker.minigamePlayingID]);
+            numberOfMinigames[linker.minigameType]--;
+            if(linker.minigameType == 0)
+                posWithTuberias.Remove(tuberiasLocasSpawnPositions[linker.minigameSpawnpositionID].transform.position);
+            else if (linker.minigameType == 1)
+                posWithPintar.Remove(tuberiasLocasSpawnPositions[linker.minigameSpawnpositionID].transform.position);
+            totalMinigames--;
+            print("Destroying pos at: " + linker.minigameSpawnpositionID);
+        }
+    }
 	
 	/*** UPDATE ***/
 	void Update () {
@@ -136,26 +162,26 @@ public class MainGameManager : MonoBehaviour {
         {
             return;
         }
-
         // Crea y posiciona el objeto
         GameObject miniGame = miniGamesPrefabs[i];
-        numberOfMinigames[i]++;
         Vector3 pos = Vector3.zero;
         // Posicion
-        if(i == 0)
+        int p = 0;
+        if (i == 0)
         {
             if(posWithTuberias.Count >= tuberiasLocasSpawnPositions.Length)
             {
                 return;
             }
             bool posFinded = false;
-            int p = 0;
+            p = 0;
             while (!posFinded)
             {
                 p = Random.Range(0, tuberiasLocasSpawnPositions.Length);
                 if (!posWithTuberias.Contains(tuberiasLocasSpawnPositions[p].transform.position))
                     posFinded = true;
             }
+            print("Instantiating at pos: " + p);
             pos = tuberiasLocasSpawnPositions[p].transform.position;
             posWithTuberias.Add(tuberiasLocasSpawnPositions[p].transform.position);
         }
@@ -166,7 +192,7 @@ public class MainGameManager : MonoBehaviour {
                 return;
             }
             bool posFinded = false;
-            int p = 0;
+            p = 0;
             while (!posFinded)
             {
                 p = Random.Range(0, pintarSpawnPositions.Length);
@@ -177,15 +203,20 @@ public class MainGameManager : MonoBehaviour {
             posWithPintar.Add(pintarSpawnPositions[p].transform.position);
         }
         GameObject inst = Instantiate(miniGame, pos, Quaternion.identity);
-        inst.transform.parent = miniGamesParent.transform;
         inst.transform.name = "MiniGame n: " + mgn;
+        numberOfMinigames[i]++;
         mgn++;
         miniGames.Add(inst);
-        inst.GetComponent<Minigame>().minigameID = miniGames.Count - 1;
+        inst.GetComponent<Minigame>().minigameID = totalMinigames;
+        inst.GetComponent<Minigame>().spawnPositionID = p;
+        inst.GetComponent<Minigame>().minigameType = i;
+        totalMinigames++;
     }
 
     GameObject GetNearesMiniGame()
     {
+        //print(miniGames[0].transform.position);
+        //print(player.name);
         float nearestDistance = Vector3.Distance(player.transform.position, miniGames[0].transform.position);
         GameObject nearestObject = miniGames[0];
         foreach (var item in miniGames)
@@ -266,7 +297,11 @@ public class MainGameManager : MonoBehaviour {
                 linker.posWithPintar = posWithPintar;
                 linker.miniGames = miniGames;
                 linker.numberOfMinigames = numberOfMinigames;
-
+                linker.started = true;
+                foreach (GameObject mg in miniGames)
+                {
+                    DontDestroyOnLoad(mg);
+                }
                 SceneManager.LoadScene(sceneToFadeName);
             }
         }

@@ -174,6 +174,8 @@ public class Player : MonoBehaviour {
             //gameManager.sceneToFadeName = "TuberíasLocas";
             gameManager.minigameToGoType = 0;
             linker.minigamePlayingID = other.transform.GetComponent<Minigame>().minigameID;
+            linker.minigameSpawnpositionID = other.transform.GetComponent<Minigame>().spawnPositionID;
+            linker.minigameType = other.transform.GetComponent<Minigame>().minigameType;
             //gameManager.fadeOut = true;
         }
         else if (other.tag == "PintarTrigger")
@@ -181,6 +183,8 @@ public class Player : MonoBehaviour {
             //gameManager.sceneToFadeName = "Humedades";
             gameManager.minigameToGoType = 1;
             linker.minigamePlayingID = other.transform.GetComponent<Minigame>().minigameID;
+            linker.minigameSpawnpositionID = other.transform.GetComponent<Minigame>().spawnPositionID;
+            linker.minigameType = other.transform.GetComponent<Minigame>().minigameType;
             //gameManager.fadeOut = true;
         }
     }

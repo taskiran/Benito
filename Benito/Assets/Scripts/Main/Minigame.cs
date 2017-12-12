@@ -4,6 +4,6 @@ using UnityEngine;
 
 public class Minigame : MonoBehaviour {
 
-    [HideInInspector]
-    public int minigameID;
+    //[HideInInspector]
+    public int minigameID, spawnPositionID, minigameType;
 }

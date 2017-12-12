@@ -58,6 +58,12 @@ public class GameManager : MonoBehaviour {
         // Bucle de juego una vez perdido
         if (gameOver)
             GameOver();
+
+        // BORRAME BRO
+        if (Input.GetKeyDown(KeyCode.Escape))
+        {
+            SceneManager.LoadScene("main");
+        }
 	}
 
     /* Controlar el agua */
