@@ -23,7 +23,7 @@ public class Pipe : MonoBehaviour {
     public Sprite TMaskSprite, startMaskSprite, endMaskSprite;
     public Sprite[] IMasksSprites;
 
-    [HideInInspector]
+    //[HideInInspector]
     public int type = 0, x, y, preType = 0;
     [HideInInspector]
     public bool startPipe = false, endPipe = false, prePipe = false;
@@ -432,8 +432,9 @@ public class Pipe : MonoBehaviour {
                 connectedLeft = true;
                 connectedUp = true;
 
-                if (fillingPipe)
+                if (fillingPipe && !gameManager.gameOver && !gameManager.win)
                 {
+                    if (y > 8 && !startPipe && !endPipe) GameOver();
                     if (entersLeft)
                     {
                         waterParent.transform.localPosition = new Vector3(-1f, 0, 0);

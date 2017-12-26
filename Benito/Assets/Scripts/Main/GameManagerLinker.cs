@@ -22,7 +22,7 @@ public class GameManagerLinker : MonoBehaviour {
     public List<Vector3> posWithPintar = new List<Vector3>();
     public List<GameObject> miniGames = new List<GameObject>();
     public uint[] numberOfMinigames;
-    public bool started = false;
+    public bool started = false, minigameCompleted = false;
 
     /*** AWAKE ***/
     private void Awake()
@@ -33,32 +33,20 @@ public class GameManagerLinker : MonoBehaviour {
         }
 
         DontDestroyOnLoad(gameObject);
-
-        //if (SceneManager.GetActiveScene().name == "main")
-        //{
-        //    //mainPlayer = GameObject.FindGameObjectWithTag("Player");
-        //    mainGameManager = GameObject.FindGameObjectWithTag("MainGameManager").GetComponent<MainGameManager>();
-
-        //    if (minigamePlayingID != -1)
-        //    {
-        //        print("A");
-        //        mainGameManager.posWithTuberias = posWithTuberias;
-        //        mainGameManager.posWithPintar = posWithPintar;
-        //        mainGameManager.miniGames = miniGames;
-        //        mainGameManager.numberOfMinigames = numberOfMinigames;
-
-        //        //mainGameManager.DestroyMiniGameAt(minigamePlayingID);
-        //    }
-        //}
     }
 
- //   void Start () {
-		
-	//}
-	
-	void Update () {
-        //print(miniGames.Count);
-	}
+    private void Update()
+    {
+        if(miniGames.Count > 0)
+        {
+            foreach (GameObject item in miniGames)
+            {
+                //item.SetActive(false);
+            }
+        }
+        
+    }
+
 }
 
 /*---------------------------------------------------------------------------

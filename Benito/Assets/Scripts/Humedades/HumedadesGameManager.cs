@@ -5,6 +5,7 @@ using UnityEngine.UI;
 using UnityEngine.SceneManagement;
 public class HumedadesGameManager : MonoBehaviour {
 
+    [Header("Enlaces")]
     public GameObject brush, brushContainer;    // Prefab de la brocha a instanciar y contenedor de los brushed;
     public RenderTexture canvasTexture; // Textura de renderizado que se convierte al material del modelo (plano)
     public Material baseMaterial;   // Material del plano frente a la camara de renderizado de textura
@@ -14,17 +15,41 @@ public class HumedadesGameManager : MonoBehaviour {
     public Slider whiteSlider;  // % de pintura blanca
     public Slider redSlider;    // % de zona roja pintada
 
+    [Header("Parametros del juego")]
+    public GameObject brocha;
+    public Texture2D[] texturesToPaint;
+    public float redPToLoose = 30.0f;
+    public float pinturaLoosePerPaint = 10.0f;
+    public uint levelsToComplete = 2;
+    public float time = 99999f;
+
+    [HideInInspector]
+    public uint levelsCompleted = 0;
+
+    private uint level = 0;
+
     private int brushesInstances = 0;   // Controlador de instancias de brochas para fusionar
     private float fullRedP = 0;
 
-    private bool gameOver = false;
+    [HideInInspector]
+    public bool gameOver = false;
+
+    private MyGUI gui;
+
+    private float pinturaLoosed;
 
 	// Use this for initialization
 	void Start () {
+        PlayerPrefs.SetInt("Day", 1);
         // Enlaces
-        baseMaterial.mainTexture = mainTex;
         brush.GetComponent<SpriteRenderer>().color = Color.white;
         gameOver = false;
+        gui = GetComponent<MyGUI>();
+        levelsCompleted = 0;
+        gui.startTime = time;
+        pinturaLoosed = 0f;
+
+        SelectTextureToPaint();
 
         CheckRedFirstTime();
         
@@ -32,18 +57,34 @@ public class HumedadesGameManager : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update () {
+
+        if (!gameOver && !gui.win && !gui.next)
+        {
+            Game();
+        }
+        
+        // BORRAME
+        if (Input.GetKeyDown(KeyCode.Escape))
+        {
+            SceneManager.LoadScene("main");
+        }
+    }
+
+    void Game()
+    {
         // Variables
         Vector3 uvWorldPosition = Vector3.zero;
         GameObject _brush = null;
 
         // Si se clicka sobre el plano, instancia una brocha
-        if(HitTestUVPosition(ref uvWorldPosition))
+        if (HitTestUVPosition(ref uvWorldPosition))
         {
             _brush = Instantiate(brush);
             _brush.transform.parent = brushContainer.transform;
             _brush.transform.localPosition = uvWorldPosition;
 
             brushesInstances++;
+            pinturaLoosed += pinturaLoosePerPaint;
         }
 
         // Si el numero de brochas llega a un limite, fusionalas con la textura
@@ -51,12 +92,19 @@ public class HumedadesGameManager : MonoBehaviour {
         {
             SaveTexture();
         }
+    }
 
-        // BORRAME
-        if (Input.GetKeyDown(KeyCode.Escape))
+    void SelectTextureToPaint()
+    {
+        switch (PlayerPrefs.GetInt("Day"))
         {
-            SceneManager.LoadScene("main");
+            case 1:
+                int randInd = Random.Range(0, 2);
+                startMaterial.mainTexture = texturesToPaint[randInd];
+                break;
         }
+
+        baseMaterial.mainTexture = mainTex;
     }
 
     void CheckRedFirstTime()
@@ -67,8 +115,13 @@ public class HumedadesGameManager : MonoBehaviour {
         Color[] pix = _tex.GetPixels();
 
         int redP = 0;
+        int whiteP = 0;
         for (int i = 0; i < pix.Length; i += 100)
         {
+            if (!(pix[i].r != 1 || pix[i].g != 1 || pix[i].b != 1 || pix[i].a != 1))
+            {
+                whiteP++;
+            }
             if (!(pix[i].r == 1 || pix[i].g != 0 || pix[i].b != 0 || pix[i].a != 1))
             {
                 redP++;
@@ -76,6 +129,10 @@ public class HumedadesGameManager : MonoBehaviour {
         }
 
         fullRedP = redP / 16.34210526315789f;
+
+        //whiteSlider.value = (float)((whiteP / (pix.Length / 100f)));
+        //redSlider.value = (float)((redP / fullRedP));
+        gui.peligroPercent = (float)((redP / fullRedP));
     }
 
     /*** Comprobación del blanco en pantalla ***/
@@ -86,7 +143,6 @@ public class HumedadesGameManager : MonoBehaviour {
 
         Color[] pix = _tex.GetPixels();
 
-        bool everyWhite = false;
         int whiteP = 0;
         int redP = 0;
         for (int i = 0; i < pix.Length; i+= 100)
@@ -100,22 +156,26 @@ public class HumedadesGameManager : MonoBehaviour {
                 redP++;
             }
         }
-        //print((float)((whiteP / (pix.Length / 100f)) * 100f));
-        print((float)((redP / fullRedP) * 100f));
 
         whiteSlider.value = (float)((whiteP / (pix.Length / 100f)));
         redSlider.value = (float)((redP / fullRedP));
-
-        if ((float)((whiteP / (pix.Length / 100f)) * 100f) > 99.5f)
+        gui.peligroPercent = (1f - (float)((redP / fullRedP))) + redPToLoose / 100;
+        gui.pinturaPercent = 1f - (pinturaLoosed / 100);
+        // Se ha quedado sin pintura
+        if(1f - (pinturaLoosed / 100) <= 0f)
         {
-            print("A");
-            everyWhite = true;
+            gui.pinturaPercent = 0f;
+            GameOver();
         }
 
-        // Completamente pintado
-        if (everyWhite)
+        // Ha pintado demsiado rojo
+        if (((float)((redP / fullRedP) * 100f) < redPToLoose)){
+            GameOver();
+        }
+
+        if ((float)(((whiteP + redP) / (pix.Length / 100f)) * 100f) > 97f)
         {
-            print("All!");
+            Win();
         }
     }
 
@@ -141,6 +201,8 @@ public class HumedadesGameManager : MonoBehaviour {
                     return false;
                 }
 
+                brocha.transform.position = mobHit.point;
+
                 Vector2 pixelUV = new Vector2(mobHit.textureCoord.x, mobHit.textureCoord.y);
                 uvWorldPosition.x = pixelUV.x;
                 uvWorldPosition.y = pixelUV.y;
@@ -157,6 +219,8 @@ public class HumedadesGameManager : MonoBehaviour {
             {
                 return false;
             }
+
+            brocha.transform.position = hit.point;
 
             Vector2 pixelUV = new Vector2(hit.textureCoord.x, hit.textureCoord.y);
             uvWorldPosition.x = pixelUV.x;
@@ -186,5 +250,52 @@ public class HumedadesGameManager : MonoBehaviour {
             Destroy(child.gameObject);
         }
         Check();
+    }
+
+    /*** Metodo para perder ***/
+    void GameOver()
+    {
+        gameOver = true;
+        gui.gameOver = true;
+    }
+
+    /*** Metodo para ganar ***/
+    void Win()
+    {
+        levelsCompleted++;
+        if(levelsCompleted >= 2)
+        {
+            gui.win = true;
+        }
+        else
+        {
+            gui.next = true;
+        }
+    }
+
+    /*** Volver a intentar ***/
+    public void TryAgain()
+    {
+        ResetStats();
+        SelectTextureToPaint();
+        CheckRedFirstTime();
+    }
+
+    /*** Reiniciar parametros del jugador ***/
+    void ResetStats()
+    {
+        gameOver = false;
+        gui.timer = 0;
+        gui.startTime = time;
+        gui.gameOver = false;
+        gui.win = false;
+        gui.next = false;
+        
+    }
+
+    /*** Volver al mundo ***/
+    public void GoToWorld()
+    {
+        SceneManager.LoadScene("main");
     }
 }

@@ -1197,11 +1197,13 @@ MonoBehaviour:
   minigamePlayingID: -1
   minigameSpawnpositionID: -1
   minigameType: -1
+  totalMinigames: -1
   posWithTuberias: []
   posWithPintar: []
   miniGames: []
   numberOfMinigames: 
   started: 0
+  minigameCompleted: 0
 --- !u!4 &1010327115
 Transform:
   m_ObjectHideFlags: 0
@@ -2198,7 +2200,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!108 &1772317958
 Light:
   m_ObjectHideFlags: 0

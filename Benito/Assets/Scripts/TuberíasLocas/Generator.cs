@@ -77,15 +77,11 @@ public class Generator : MonoBehaviour {
     void Start () {
         PlayerPrefs.SetInt("Day", 1);
         levelsCompleted = 0;
+        rows = 15;
         pipes = new GameObject[rows, rows];
         SetRandomlevel();
         GenerateStage();
 	}
-
-    //private void Update()
-    //{
-        
-    //}
 
     public void DestroyStage()
     {
@@ -152,9 +148,6 @@ public class Generator : MonoBehaviour {
                  * 2->  Recto
                  * 3->  Entrada
                  * 4->  Salida
-                 * Tamaño REAL del escenario:
-                 * X->  De 1 a 13
-                 * Y->  De 0 a 8
                  */
                 int type = stage[level, y, x - 1];
                 switch (type)

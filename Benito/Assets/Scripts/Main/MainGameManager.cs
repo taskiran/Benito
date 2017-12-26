@@ -97,7 +97,7 @@ public class MainGameManager : MonoBehaviour {
             numberOfMinigames = new uint[miniGamesPrefabs.Length];
 
         // Si se viene de un minijuego...
-        if (linker.started)
+        if (linker.started && linker.minigameCompleted)
         {
             totalMinigames = linker.totalMinigames;
             // Guarda las lista de posiciones de minijuegos y la lista de minijuegos con las que tiene el enlazador
@@ -112,9 +112,20 @@ public class MainGameManager : MonoBehaviour {
             if(linker.minigameType == 0)
                 posWithTuberias.Remove(tuberiasLocasSpawnPositions[linker.minigameSpawnpositionID].transform.position);
             else if (linker.minigameType == 1)
-                posWithPintar.Remove(tuberiasLocasSpawnPositions[linker.minigameSpawnpositionID].transform.position);
-            totalMinigames--;
-            print("Destroying pos at: " + linker.minigameSpawnpositionID);
+                posWithPintar.Remove(pintarSpawnPositions[linker.minigameSpawnpositionID].transform.position);
+            // Reinicia el enlazador
+            linker.totalMinigames = 0;
+            linker.posWithTuberias.Clear();
+            linker.posWithPintar.Clear();
+            // Reinicia los indicies de los minijuegos ahora que son menos
+            int i = 0;
+            foreach (GameObject item in linker.miniGames)
+            {
+                item.SetActive(true);
+                item.GetComponent<Minigame>().minigameID = i;
+                i++;
+            }
+            totalMinigames = i;
         }
     }
 	
@@ -181,7 +192,7 @@ public class MainGameManager : MonoBehaviour {
                 if (!posWithTuberias.Contains(tuberiasLocasSpawnPositions[p].transform.position))
                     posFinded = true;
             }
-            print("Instantiating at pos: " + p);
+            //print("Instantiating at pos: " + p);
             pos = tuberiasLocasSpawnPositions[p].transform.position;
             posWithTuberias.Add(tuberiasLocasSpawnPositions[p].transform.position);
         }
@@ -298,6 +309,7 @@ public class MainGameManager : MonoBehaviour {
                 linker.miniGames = miniGames;
                 linker.numberOfMinigames = numberOfMinigames;
                 linker.started = true;
+                linker.minigameCompleted = false;
                 foreach (GameObject mg in miniGames)
                 {
                     DontDestroyOnLoad(mg);

@@ -656,12 +656,12 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   pipePf: {fileID: 1516465791446568, guid: 7055fa425ca5b114a8a26815089f2eab, type: 2}
-  dumSprite: {fileID: 21300000, guid: 22095c79c628896478aa71a0f141063b, type: 3}
-  xPreType: 0200000003000000030000000400000005000000060000000700000008000000090000000a0000000a0000000a0000000b0000000c0000000d0000000e0000000e0000000e000000
-  yPreType: 010000000200000003000000030000000300000003000000030000000300000003000000030000000400000005000000050000000500000005000000050000000600000007000000
-  preType: 000000000000000000000000020000000200000002000000020000000200000002000000000000000200000000000000020000000200000002000000000000000200000002000000
-  rows: 15
-  level: 1
+  dumSprite: {fileID: 0}
+  xPreType: 
+  yPreType: 
+  preType: 
+  rows: 0
+  level: 0
   levelsCompleted: 0
 --- !u!4 &421342142
 Transform:
@@ -858,6 +858,24 @@ Prefab:
     - target: {fileID: 1516465791446568, guid: 7055fa425ca5b114a8a26815089f2eab, type: 2}
       propertyPath: m_IsActive
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 331746322009440178, guid: 7055fa425ca5b114a8a26815089f2eab,
+        type: 2}
+      propertyPath: m_Enabled
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 212710995993372046, guid: 7055fa425ca5b114a8a26815089f2eab,
+        type: 2}
+      propertyPath: m_MaskInteraction
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4243563932419852, guid: 7055fa425ca5b114a8a26815089f2eab, type: 2}
+      propertyPath: m_LocalScale.x
+      value: 1.19
+      objectReference: {fileID: 0}
+    - target: {fileID: 4243563932419852, guid: 7055fa425ca5b114a8a26815089f2eab, type: 2}
+      propertyPath: m_LocalScale.y
+      value: 1.06
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_ParentPrefab: {fileID: 100100000, guid: 7055fa425ca5b114a8a26815089f2eab, type: 2}
@@ -1059,7 +1077,7 @@ Canvas:
   m_SortingBucketNormalizedSize: 0
   m_AdditionalShaderChannelsFlag: 0
   m_SortingLayerID: 0
-  m_SortingOrder: 1
+  m_SortingOrder: 20
   m_TargetDisplay: 0
 --- !u!224 &842725504
 RectTransform:
