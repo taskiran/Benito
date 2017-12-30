@@ -14,6 +14,8 @@ public class TerrainTile : MonoBehaviour {
 
     public int x, y, z;
 
+    public bool isUpstairsTile;
+
     private GameGenerator generator;
     private Player player;
 
@@ -33,15 +35,32 @@ public class TerrainTile : MonoBehaviour {
 
     void PositionateTile()
     {
-        if (transform.position.y > -0.5f)
+        // Si este tile está en el piso de abajo...
+        if (!isUpstairsTile)
         {
-            transform.Translate(Vector3.down * 40 * Time.deltaTime);
+            if (transform.position.y > -0.5f)
+            {
+                transform.Translate(Vector3.down * 40 * Time.deltaTime);
+            }
+            else
+            {
+                transform.position = new Vector3(transform.position.x, -0.5f, transform.position.z);
+                positionated = true;
+            }
         }
-        if (transform.position.y < -0.5f)
+        else
         {
-            transform.position = new Vector3(transform.position.x, -0.5f, transform.position.z);
-            positionated = true;
+            if (transform.position.y > 10.4f)
+            {
+                transform.Translate(Vector3.down * 40 * Time.deltaTime);
+            }
+            else
+            {
+                transform.position = new Vector3(transform.position.x, 10.4f, transform.position.z);
+                positionated = true;
+            }
         }
+        
     }
         
 }

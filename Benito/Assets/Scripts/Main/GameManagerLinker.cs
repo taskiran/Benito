@@ -24,8 +24,10 @@ public class GameManagerLinker : MonoBehaviour {
     public uint[] numberOfMinigames;
     public bool started = false, minigameCompleted = false, penDrivesCompleted = false;
     public uint numberOfMinigamesCompleted;
+    public Vector3 playerPos;
     [HideInInspector]
-    public bool _minigameCompleted;
+    public bool _minigameCompleted, onMinigame;
+    public bool completlyLinked, firstFloor;
 
     /*** AWAKE ***/
     private void Awake()
@@ -36,8 +38,10 @@ public class GameManagerLinker : MonoBehaviour {
         }
         
         DontDestroyOnLoad(gameObject);
+        completlyLinked = true;
+        firstFloor = true;
 
-        // BORRAE PRIMO //
+        // BORRAME PRIMO //
         PlayerPrefs.SetInt("Day", 1);
     }
 

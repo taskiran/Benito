@@ -18,6 +18,7 @@ TagManager:
   - Table
   - PenDrivesTrigger
   - Obstaculo
+  - Stairs
   layers:
   - Default
   - TransparentFX

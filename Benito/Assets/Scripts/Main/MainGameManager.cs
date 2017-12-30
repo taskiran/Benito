@@ -11,6 +11,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.SceneManagement;
+using UnityEngine.AI;
 
 public class MainGameManager : MonoBehaviour {
 
@@ -146,6 +147,7 @@ public class MainGameManager : MonoBehaviour {
         }
     }
 
+    /*** Metodo para crear un minijuego ***/
     void GenerateMinigame()
     {
         float r = Random.Range(0f, 1f);
@@ -226,6 +228,14 @@ public class MainGameManager : MonoBehaviour {
             pos = penDrivesSpawnPositions[p].transform.position;
         }
         GameObject inst = Instantiate(miniGame, pos, Quaternion.identity);
+        if(pos.y < 10f)
+        {
+            inst.GetComponent<Minigame>().upstairsMinigame = false;
+        }
+        else
+        {
+            inst.GetComponent<Minigame>().upstairsMinigame = true;
+        }
         inst.transform.name = "MiniGame n: " + mgn;
         mgn++;
         if(i != 2)
@@ -251,6 +261,7 @@ public class MainGameManager : MonoBehaviour {
         return nearestObject;
     }
     
+    /*** Metodo para la gestion del dia ***/
     void Day()
     {
         // Temporizador
@@ -330,6 +341,8 @@ public class MainGameManager : MonoBehaviour {
                 linker.numberOfMinigames = numberOfMinigames;
                 linker.started = true;
                 linker.minigameCompleted = false;
+                linker.onMinigame = true;
+                linker.completlyLinked = false;
                 // No destruyas los minijuegos
                 foreach (GameObject mg in miniGames)
                 {
@@ -378,6 +391,27 @@ public class MainGameManager : MonoBehaviour {
     /*** Metodo para enlazar al volver de un minijuego ***/
     void Link()
     {
+        // Esconde los paneles
+        goToMinigamePanel.SetActive(false);
+
+        // Activa el piso
+        if (linker.firstFloor)
+        {
+            GetComponent<GameGenerator>().firstFloorTerrainTilesParent.SetActive(true);
+            GetComponent<GameGenerator>().secondFloorTerrainTilesParent.SetActive(false);
+            player.GetComponent<Player>().isUpstairs = false;
+        }
+        else
+        {
+            GetComponent<GameGenerator>().firstFloorTerrainTilesParent.SetActive(false);
+            GetComponent<GameGenerator>().secondFloorTerrainTilesParent.SetActive(true);
+            player.GetComponent<Player>().isUpstairs = true;
+        }
+
+        // Posiciona al player
+        player.GetComponent<NavMeshAgent>().destination = linker.playerPos;
+        player.transform.position = linker.playerPos;
+
         if (linker.minigameCompleted)
         {
             // Elimina el minijuego completado del mundo
@@ -411,9 +445,11 @@ public class MainGameManager : MonoBehaviour {
         linker._minigameCompleted = false;
         linker.minigameCompleted = false;
 
+        linker.onMinigame = false;
+        linker.completlyLinked = true;
+
         // Inicia el tiempo por donde estaba
         dayTimer = PlayerPrefs.GetFloat("DayTimer");
-        
     }
     
     /*** BUTTONS ***/

@@ -23,8 +23,14 @@ public class Player : MonoBehaviour {
     public float farCameraOrtographicSize = 20f;
     public float changeCameraSizeSpeed = 10f;
 
+    [Header("Escaleras")]
+    public GameObject upStairs;
+    public GameObject downStairs;
+
     [HideInInspector]
     public GameObject arrow;
+    //[HideInInspector]
+    public bool isUpstairs = false;
 
     /* Propiedades privadas */
     private GameGenerator generator;
@@ -39,23 +45,32 @@ public class Player : MonoBehaviour {
 
     private MainGameManager gameManager;
     private GameManagerLinker linker;
+
+    private bool isColliding = false;
     
 	/*** Awake ***/
 	void Awake () {
+        agent = GetComponent<NavMeshAgent>();
+        agent.enabled = false;
         generator = GameObject.FindGameObjectWithTag("MainGameManager").GetComponent<GameGenerator>();
         gameManager = GameObject.FindGameObjectWithTag("MainGameManager").GetComponent<MainGameManager>();
         linker = GameObject.FindGameObjectWithTag("GameManagerLinker").GetComponent<GameManagerLinker>();
-        agent = GetComponent<NavMeshAgent>();
         arrow = transform.GetChild(0).transform.gameObject;
-	}
+
+        generator.firstFloorTerrainTilesParent.SetActive(true);
+        generator.secondFloorTerrainTilesParent.SetActive(false);
+    }
 
     /*** Start ***/
     private void Start()
     {
-        destination = transform.position;
+        // Posicion inicial
         agent.speed = movementSpeed;
 
         startCameraOrtographicSize = ortographicSize = CMCamera.m_Lens.OrthographicSize;
+
+        
+        destination = transform.position;
     }
 
     /*** Update ***/
@@ -63,8 +78,14 @@ public class Player : MonoBehaviour {
         // Movimiento
         if (!gameManager.fadeOut && !gameManager.onPanel)
         {
+            agent.enabled = true;
             CheckMovementInput();
             Movement();
+            isColliding = false;
+        }
+        else
+        {
+            agent.enabled = false;
         }
         
 
@@ -135,7 +156,16 @@ public class Player : MonoBehaviour {
     /*** Metodo para el control de movimiento del player ***/
     void Movement()
     {
-        Vector3 _destination = new Vector3(destination.x, transform.position.y, destination.z);
+        float y = 0;
+        if (isUpstairs)
+        {
+            y = 10.4f;
+        }
+        else
+        {
+            y = 1.5f;
+        }
+        Vector3 _destination = new Vector3(destination.x, y, destination.z);
         agent.SetDestination(_destination);
     }
 
@@ -175,6 +205,8 @@ public class Player : MonoBehaviour {
             linker.minigamePlayingID = other.transform.GetComponent<Minigame>().minigameID;
             linker.minigameSpawnpositionID = other.transform.GetComponent<Minigame>().spawnPositionID;
             linker.minigameType = other.transform.GetComponent<Minigame>().minigameType;
+            linker.playerPos = transform.position;
+            linker.firstFloor = other.GetComponent<Minigame>().upstairsMinigame ? false : true;
         }
         else if (other.tag == "PintarTrigger")
         {
@@ -182,6 +214,8 @@ public class Player : MonoBehaviour {
             linker.minigamePlayingID = other.transform.GetComponent<Minigame>().minigameID;
             linker.minigameSpawnpositionID = other.transform.GetComponent<Minigame>().spawnPositionID;
             linker.minigameType = other.transform.GetComponent<Minigame>().minigameType;
+            linker.playerPos = transform.position;
+            linker.firstFloor = other.GetComponent<Minigame>().upstairsMinigame ? false : true;
         }
         else if (other.tag == "PenDrivesTrigger")
         {
@@ -189,6 +223,30 @@ public class Player : MonoBehaviour {
             linker.minigamePlayingID = other.transform.GetComponent<Minigame>().minigameID;
             linker.minigameSpawnpositionID = other.transform.GetComponent<Minigame>().spawnPositionID;
             linker.minigameType = other.transform.GetComponent<Minigame>().minigameType;
+            linker.playerPos = transform.position;
+            linker.firstFloor = other.GetComponent<Minigame>().upstairsMinigame ? false : true;
+        }
+        else if (other.tag == "Stairs")
+        {
+            if (isColliding) return;
+            isUpstairs = !isUpstairs;
+            if (isUpstairs)
+            {
+                transform.position = upStairs.transform.position;
+                generator.firstFloorTerrainTilesParent.SetActive(false);
+                generator.secondFloorTerrainTilesParent.SetActive(true);
+            }
+
+            else
+            {
+                transform.position = downStairs.transform.position;
+                generator.firstFloorTerrainTilesParent.SetActive(true);
+                generator.secondFloorTerrainTilesParent.SetActive(false);
+            }
+            agent.enabled = false;
+            destination = transform.position;
+            agent.enabled = true;
+            isColliding = true;
         }
     }
 }
