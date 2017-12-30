@@ -190,17 +190,17 @@ Prefab:
     - target: {fileID: 114880280783793968, guid: 70b3ec0db2326444ca19707b0a3efa07,
         type: 2}
       propertyPath: levelTime.Array.size
-      value: 1
+      value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 114880280783793968, guid: 70b3ec0db2326444ca19707b0a3efa07,
         type: 2}
       propertyPath: tablesParent.Array.size
-      value: 1
+      value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 114880280783793968, guid: 70b3ec0db2326444ca19707b0a3efa07,
         type: 2}
       propertyPath: numberOfTables.Array.size
-      value: 1
+      value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 4203527037550286, guid: 70b3ec0db2326444ca19707b0a3efa07, type: 2}
       propertyPath: m_LocalPosition.x
@@ -262,12 +262,12 @@ Prefab:
     - target: {fileID: 114880280783793968, guid: 70b3ec0db2326444ca19707b0a3efa07,
         type: 2}
       propertyPath: levelTime.Array.data[0]
-      value: 200
+      value: 14
       objectReference: {fileID: 0}
     - target: {fileID: 114880280783793968, guid: 70b3ec0db2326444ca19707b0a3efa07,
         type: 2}
       propertyPath: levelTime.Array.data[1]
-      value: 60
+      value: 50
       objectReference: {fileID: 0}
     - target: {fileID: 114880280783793968, guid: 70b3ec0db2326444ca19707b0a3efa07,
         type: 2}
@@ -519,12 +519,12 @@ Prefab:
         type: 2}
       propertyPath: tablesParent.Array.data[1]
       value: 
-      objectReference: {fileID: 1464257739931146, guid: 63c3cf1d4d4bbaa40877077083277997,
+      objectReference: {fileID: 1573880783057812, guid: df02b233f1547bc4a989ad0c77cbdf12,
         type: 2}
     - target: {fileID: 114880280783793968, guid: 70b3ec0db2326444ca19707b0a3efa07,
         type: 2}
       propertyPath: numberOfTables.Array.data[1]
-      value: 3
+      value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 114880280783793968, guid: 70b3ec0db2326444ca19707b0a3efa07,
         type: 2}
@@ -1118,7 +1118,7 @@ RectTransform:
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 639116572}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 276, z: 0}
+  m_LocalPosition: {x: 0, y: 244.51556, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 1671597350}
@@ -1582,7 +1582,7 @@ RectTransform:
   m_GameObject: {fileID: 1671597346}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 1, z: -9.7}
-  m_LocalScale: {x: 0.016666668, y: 0.016666668, z: 0.016666668}
+  m_LocalScale: {x: 0.018620895, y: 0.018620895, z: 0.018620895}
   m_Children:
   - {fileID: 2142195266}
   - {fileID: 639116573}
