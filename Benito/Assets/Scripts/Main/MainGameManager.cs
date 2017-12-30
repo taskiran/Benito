@@ -19,17 +19,26 @@ public class MainGameManager : MonoBehaviour {
     public float daySecondsDuration = 10f;
     public GameObject directionalLight;
     public Text dayTimerTxt;
+    [HideInInspector]
+    public bool dayCompleted = false;
 
     [Header("Gestión de minijuegos")]
     public GameObject[] miniGamesPrefabs;
+    public GameObject penDrivesPrefab;
     public float[] miniGamesProbabilities;
     public Transform[] tuberiasLocasSpawnPositions;
     public Transform[] pintarSpawnPositions;
+    public Transform[] penDrivesSpawnPositions;
     public float spawnTimer = 1f;
     [Header("Maximo de minijuegos por cada minijuego")]
     public uint maxMiniGames = 2;
+    [Header("Numero de minijuegos por dia")]
+    public uint[] numberOfMinigamesPerDay;
+
     [Header("UI")]
     public GameObject goToMinigamePanel;
+    public GameObject dayCompletedPanel;
+    public GameObject gameCompletedPanel;
     public Text goToMinigameText;
     [HideInInspector]
     public int minigameToGoType;
@@ -62,7 +71,9 @@ public class MainGameManager : MonoBehaviour {
 
     private GameManagerLinker linker;
 
-    //-------------------Gestión el día-------------------------//
+    private uint maxNumberOfMinigamesThisDay;
+
+    //-------------------Gestión del día-------------------------//
     private bool dayEnded = false;
     private float dayTimer = 0.0f;
     private float sunRotation;
@@ -77,63 +88,43 @@ public class MainGameManager : MonoBehaviour {
 
     /*** START ***/
     void Start () {
-        // Asignaciones iniciales
-        fadeImage.gameObject.SetActive(false);
-        goToMinigamePanel.SetActive(false);
-        minigameToGoType = -1;
-        dayTimer = 0.0f;
-        fadeTimer = 0f;
-        totalMinigames = 0;
-        // Enlaces
-        player = GameObject.FindGameObjectWithTag("Player");
-        if (!player)
-        {
-            Debug.LogError("Can't find player!");
-        }
-        linker = GameObject.FindGameObjectWithTag("GameManagerLinker").GetComponent<GameManagerLinker>();
-        arrow = player.transform.GetChild(0).transform.gameObject;
-        _spawnTimer = spawnTimer;
-        if(numberOfMinigames.Length == 0)
-            numberOfMinigames = new uint[miniGamesPrefabs.Length];
-
+        SetUpDay();
         // Si se viene de un minijuego...
         if (linker.started && linker.minigameCompleted)
         {
-            totalMinigames = linker.totalMinigames;
-            // Guarda las lista de posiciones de minijuegos y la lista de minijuegos con las que tiene el enlazador
-            posWithTuberias = linker.posWithTuberias;
-            posWithPintar = linker.posWithPintar;
-            miniGames = linker.miniGames;
-            numberOfMinigames = linker.numberOfMinigames;
-            // Borra el minijuego del que se ha venido de todas las listas
-            Destroy(miniGames[linker.minigamePlayingID]);
-            miniGames.Remove(miniGames[linker.minigamePlayingID]);
-            numberOfMinigames[linker.minigameType]--;
-            if(linker.minigameType == 0)
-                posWithTuberias.Remove(tuberiasLocasSpawnPositions[linker.minigameSpawnpositionID].transform.position);
-            else if (linker.minigameType == 1)
-                posWithPintar.Remove(pintarSpawnPositions[linker.minigameSpawnpositionID].transform.position);
-            // Reinicia el enlazador
-            linker.totalMinigames = 0;
-            linker.posWithTuberias.Clear();
-            linker.posWithPintar.Clear();
-            // Reinicia los indicies de los minijuegos ahora que son menos
-            int i = 0;
-            foreach (GameObject item in linker.miniGames)
-            {
-                item.SetActive(true);
-                item.GetComponent<Minigame>().minigameID = i;
-                i++;
-            }
-            totalMinigames = i;
+            Link();
         }
+        // Comprueba si ha acabado el dia
+        if (linker.penDrivesCompleted) dayCompleted = true;
     }
 	
 	/*** UPDATE ***/
 	void Update () {
-        Day();
-        Interface();
-        MinigamesManager();
+        if (!dayCompleted)
+        {
+            // Paneles
+            gameCompletedPanel.SetActive(false);
+            dayCompletedPanel.SetActive(false);
+
+            // Logica
+            Day();
+            Interface();
+            MinigamesManager();
+        }
+        else
+        {   
+            // Juego completado
+            if(PlayerPrefs.GetInt("Day") == numberOfMinigamesPerDay.Length)
+            {
+                gameCompletedPanel.SetActive(true);
+            }
+            // Día completado
+            else
+            {
+                dayCompletedPanel.SetActive(true);
+            }
+            
+        }
 	}
 
     /*** Metodo para instanciar minijuegos y controlar la flecha ***/
@@ -160,25 +151,37 @@ public class MainGameManager : MonoBehaviour {
         float r = Random.Range(0f, 1f);
         int i = -1;
         // Decide el objeto a instanciar
-        foreach (float prob in miniGamesProbabilities)
+        if(maxNumberOfMinigamesThisDay == linker.numberOfMinigamesCompleted)
         {
-            int _i = System.Array.IndexOf(miniGamesProbabilities, prob);
-            if (prob > r && numberOfMinigames[_i] < maxMiniGames)
+            i = 2;  // PenDrives
+        }
+        else
+        {
+            foreach (float prob in miniGamesProbabilities)
             {
-                i = _i;
+                int _i = System.Array.IndexOf(miniGamesProbabilities, prob);
+                if (prob > r && numberOfMinigames[_i] < maxMiniGames)
+                {
+                    i = _i;
+                }
+            }
+
+            if (i == -1)
+            {
+                return;
             }
         }
-
-        if(i == -1)
-        {
-            return;
-        }
+        if (miniGames.Count >= maxNumberOfMinigamesThisDay) return;
         // Crea y posiciona el objeto
-        GameObject miniGame = miniGamesPrefabs[i];
+        GameObject miniGame = null;
+        if (i == 2)
+            miniGame = penDrivesPrefab;
+        else
+            miniGame = miniGamesPrefabs[i];
         Vector3 pos = Vector3.zero;
         // Posicion
         int p = 0;
-        if (i == 0)
+        if (i == 0) // Tuberias
         {
             if(posWithTuberias.Count >= tuberiasLocasSpawnPositions.Length)
             {
@@ -192,11 +195,12 @@ public class MainGameManager : MonoBehaviour {
                 if (!posWithTuberias.Contains(tuberiasLocasSpawnPositions[p].transform.position))
                     posFinded = true;
             }
-            //print("Instantiating at pos: " + p);
             pos = tuberiasLocasSpawnPositions[p].transform.position;
             posWithTuberias.Add(tuberiasLocasSpawnPositions[p].transform.position);
+
+            numberOfMinigames[i]++;
         }
-        else if (i == 1)
+        else if (i == 1)    // Pintar
         {
             if (posWithPintar.Count >= pintarSpawnPositions.Length)
             {
@@ -212,12 +216,20 @@ public class MainGameManager : MonoBehaviour {
             }
             pos = pintarSpawnPositions[p].transform.position;
             posWithPintar.Add(pintarSpawnPositions[p].transform.position);
+
+            numberOfMinigames[i]++;
+        }
+        else if (i == 2)    // PenDrives
+        {
+            p = 0;
+            p = Random.Range(0, penDrivesSpawnPositions.Length);
+            pos = penDrivesSpawnPositions[p].transform.position;
         }
         GameObject inst = Instantiate(miniGame, pos, Quaternion.identity);
         inst.transform.name = "MiniGame n: " + mgn;
-        numberOfMinigames[i]++;
         mgn++;
-        miniGames.Add(inst);
+        if(i != 2)
+            miniGames.Add(inst);
         inst.GetComponent<Minigame>().minigameID = totalMinigames;
         inst.GetComponent<Minigame>().spawnPositionID = p;
         inst.GetComponent<Minigame>().minigameType = i;
@@ -226,8 +238,6 @@ public class MainGameManager : MonoBehaviour {
 
     GameObject GetNearesMiniGame()
     {
-        //print(miniGames[0].transform.position);
-        //print(player.name);
         float nearestDistance = Vector3.Distance(player.transform.position, miniGames[0].transform.position);
         GameObject nearestObject = miniGames[0];
         foreach (var item in miniGames)
@@ -238,7 +248,6 @@ public class MainGameManager : MonoBehaviour {
                 nearestObject = item;
             }
         }
-        //print(nearestObject.name);
         return nearestObject;
     }
     
@@ -260,6 +269,11 @@ public class MainGameManager : MonoBehaviour {
         sunRotation = dayTimeNormalized * 190f;
         // Aplica la rotación del sol
         sunRotQuat = Quaternion.Euler(sunRotation, 0, 0);
+        // Si se han completado todos los minijuegos excepto los pen drives, fuerza la noche
+        if (maxNumberOfMinigamesThisDay == linker.numberOfMinigamesCompleted)
+        {
+            sunRotQuat = Quaternion.Euler(190f, 0, 0);
+        }
         directionalLight.transform.rotation = sunRotQuat;
 
         // Si el tiempo se ha acabado, termina el dia
@@ -269,6 +283,7 @@ public class MainGameManager : MonoBehaviour {
         }
     }
 
+    /*** Metodo para cargar escena segun el tipo de minijuego ***/
     void Interface()
     {
         if(minigameToGoType != -1)
@@ -284,6 +299,10 @@ public class MainGameManager : MonoBehaviour {
                 case (1):
                     goToMinigameText.text = "Humedades";
                     sceneToFadeName = "Humedades";
+                    break;
+                case (2):
+                    goToMinigameText.text = "PenDrives";
+                    sceneToFadeName = "PenDrives";
                     break;
             }
         }
@@ -304,16 +323,22 @@ public class MainGameManager : MonoBehaviour {
                 fadeOut = false;
                 onPanel = false;
 
+                // Enlaza
                 linker.posWithTuberias = posWithTuberias;
                 linker.posWithPintar = posWithPintar;
                 linker.miniGames = miniGames;
                 linker.numberOfMinigames = numberOfMinigames;
                 linker.started = true;
                 linker.minigameCompleted = false;
+                // No destruyas los minijuegos
                 foreach (GameObject mg in miniGames)
                 {
                     DontDestroyOnLoad(mg);
                 }
+                // Guarda el tiempo
+                PlayerPrefs.SetFloat("DayTimer", dayTimer);
+
+                // Carga el minijuego
                 SceneManager.LoadScene(sceneToFadeName);
             }
         }
@@ -324,6 +349,73 @@ public class MainGameManager : MonoBehaviour {
         miniGames.RemoveAt(id);
     }
 
+    /*** Metodo para iniciar el dia ***/
+    void SetUpDay()
+    {
+        // Asignaciones iniciales
+        fadeImage.gameObject.SetActive(false);
+        goToMinigamePanel.SetActive(false);
+        minigameToGoType = -1;
+        dayTimer = 0.0f;
+        fadeTimer = 0f;
+        totalMinigames = 0;
+
+        // Enlaces
+        player = GameObject.FindGameObjectWithTag("Player");
+        if (!player)
+        {
+            Debug.LogError("Can't find player!");
+        }
+        linker = GameObject.FindGameObjectWithTag("GameManagerLinker").GetComponent<GameManagerLinker>();
+        arrow = player.transform.GetChild(0).transform.gameObject;
+        _spawnTimer = spawnTimer;
+        if (numberOfMinigames.Length == 0)
+            numberOfMinigames = new uint[miniGamesPrefabs.Length];
+
+        maxNumberOfMinigamesThisDay = numberOfMinigamesPerDay[PlayerPrefs.GetInt("Day") - 1];
+    }
+
+    /*** Metodo para enlazar al volver de un minijuego ***/
+    void Link()
+    {
+        if (linker.minigameCompleted)
+        {
+            // Elimina el minijuego completado del mundo
+            totalMinigames = linker.totalMinigames;
+            Destroy(linker.miniGames[linker.minigamePlayingID]);
+            linker.miniGames.RemoveAt(linker.minigamePlayingID);
+        }
+        
+        // Guarda las lista de posiciones de minijuegos y la lista de minijuegos con las que tiene el enlazador
+        posWithTuberias = linker.posWithTuberias;
+        posWithPintar = linker.posWithPintar;
+        miniGames = linker.miniGames;
+        numberOfMinigames = linker.numberOfMinigames;
+        if (linker.minigameType == 0)
+            posWithTuberias.Remove(tuberiasLocasSpawnPositions[linker.minigameSpawnpositionID].transform.position);
+        else if (linker.minigameType == 1)
+            posWithPintar.Remove(pintarSpawnPositions[linker.minigameSpawnpositionID].transform.position);
+        // Reinicia el enlazador
+        linker.totalMinigames = 0;
+        linker.posWithTuberias.Clear();
+        linker.posWithPintar.Clear();
+        // Reinicia los indicies de los minijuegos ahora que son menos
+        int i = 0;
+        foreach (GameObject item in linker.miniGames)
+        {
+            item.SetActive(true);
+            item.GetComponent<Minigame>().minigameID = i;
+            i++;
+        }
+        totalMinigames = i;
+        linker._minigameCompleted = false;
+        linker.minigameCompleted = false;
+
+        // Inicia el tiempo por donde estaba
+        dayTimer = PlayerPrefs.GetFloat("DayTimer");
+        
+    }
+    
     /*** BUTTONS ***/
     public void GoToMinigame()
     {
@@ -336,6 +428,14 @@ public class MainGameManager : MonoBehaviour {
         onPanel = false;
         minigameToGoType = -1;
         goToMinigamePanel.SetActive(false);
+    }
+    public void NextDay()
+    {
+        PlayerPrefs.SetInt("Day", PlayerPrefs.GetInt("Day") + 1);
+        linker.started = false;
+        linker.numberOfMinigamesCompleted = 0;
+        dayCompleted = false;
+        SetUpDay();
     }
 }
 

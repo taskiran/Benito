@@ -22,7 +22,10 @@ public class GameManagerLinker : MonoBehaviour {
     public List<Vector3> posWithPintar = new List<Vector3>();
     public List<GameObject> miniGames = new List<GameObject>();
     public uint[] numberOfMinigames;
-    public bool started = false, minigameCompleted = false;
+    public bool started = false, minigameCompleted = false, penDrivesCompleted = false;
+    public uint numberOfMinigamesCompleted;
+    [HideInInspector]
+    public bool _minigameCompleted;
 
     /*** AWAKE ***/
     private void Awake()
@@ -31,18 +34,19 @@ public class GameManagerLinker : MonoBehaviour {
         {
             Destroy(gameObject);
         }
-
+        
         DontDestroyOnLoad(gameObject);
+
+        // BORRAE PRIMO //
+        PlayerPrefs.SetInt("Day", 1);
     }
 
     private void Update()
     {
-        if(miniGames.Count > 0)
+        if (minigameCompleted && !_minigameCompleted)
         {
-            foreach (GameObject item in miniGames)
-            {
-                //item.SetActive(false);
-            }
+            numberOfMinigamesCompleted++;
+            _minigameCompleted = true;
         }
         
     }

@@ -171,21 +171,24 @@ public class Player : MonoBehaviour {
     {
         if(other.tag == "TuberíasLocasTrigger")
         {
-            //gameManager.sceneToFadeName = "TuberíasLocas";
             gameManager.minigameToGoType = 0;
             linker.minigamePlayingID = other.transform.GetComponent<Minigame>().minigameID;
             linker.minigameSpawnpositionID = other.transform.GetComponent<Minigame>().spawnPositionID;
             linker.minigameType = other.transform.GetComponent<Minigame>().minigameType;
-            //gameManager.fadeOut = true;
         }
         else if (other.tag == "PintarTrigger")
         {
-            //gameManager.sceneToFadeName = "Humedades";
             gameManager.minigameToGoType = 1;
             linker.minigamePlayingID = other.transform.GetComponent<Minigame>().minigameID;
             linker.minigameSpawnpositionID = other.transform.GetComponent<Minigame>().spawnPositionID;
             linker.minigameType = other.transform.GetComponent<Minigame>().minigameType;
-            //gameManager.fadeOut = true;
+        }
+        else if (other.tag == "PenDrivesTrigger")
+        {
+            gameManager.minigameToGoType = 2;
+            linker.minigamePlayingID = other.transform.GetComponent<Minigame>().minigameID;
+            linker.minigameSpawnpositionID = other.transform.GetComponent<Minigame>().spawnPositionID;
+            linker.minigameType = other.transform.GetComponent<Minigame>().minigameType;
         }
     }
 }

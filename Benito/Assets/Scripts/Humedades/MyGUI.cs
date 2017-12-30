@@ -23,7 +23,7 @@ public class MyGUI : MonoBehaviour {
         winObj.SetActive(false);
         manager = GetComponent<HumedadesGameManager>();
         timer = 0;
-	}
+    }
 	
 	// Update is called once per frame
 	void Update () {
@@ -41,14 +41,14 @@ public class MyGUI : MonoBehaviour {
             winObj.SetActive(true);
             winObj.transform.GetChild(0).GetChild(1).GetChild(0).gameObject.GetComponent<Text>().text = "GoToWorld";
             winObj.transform.GetChild(0).GetChild(1).gameObject.GetComponent<Button>().onClick.RemoveAllListeners();
-            winObj.transform.GetChild(0).GetChild(1).gameObject.GetComponent<Button>().onClick.AddListener(delegate { manager.GoToWorld(); });
+            winObj.transform.GetChild(0).GetChild(1).gameObject.GetComponent<Button>().onClick.AddListener(manager.GoToWorld);
         }
         else if (next)
         {
             winObj.SetActive(true);
             winObj.transform.GetChild(0).GetChild(1).GetChild(0).gameObject.GetComponent<Text>().text = "Next Level";
             winObj.transform.GetChild(0).GetChild(1).gameObject.GetComponent<Button>().onClick.RemoveAllListeners();
-            winObj.transform.GetChild(0).GetChild(1).gameObject.GetComponent<Button>().onClick.AddListener(delegate { manager.TryAgain(); });
+            winObj.transform.GetChild(0).GetChild(1).gameObject.GetComponent<Button>().onClick.AddListener(manager.TryAgain);
         }
         else
         {

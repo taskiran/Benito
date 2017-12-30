@@ -121,7 +121,8 @@ public class Pipe : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update () {
-        UpdatePipe();
+        if(!gameManager.win)
+            UpdatePipe();
 	}
 
     /*** Actualizador de tuberias ***/

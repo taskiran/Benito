@@ -206,7 +206,7 @@ RectTransform:
   m_LocalScale: {x: 0.48177156, y: 0.48177156, z: 0.48177156}
   m_Children: []
   m_Father: {fileID: 1128778796}
-  m_RootOrder: 8
+  m_RootOrder: 6
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
@@ -321,7 +321,18 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 138354870}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 0}
+        m_MethodName: 
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: 
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
     m_TypeName: UnityEngine.UI.Button+ButtonClickedEvent, UnityEngine.UI, Version=1.0.0.0,
       Culture=neutral, PublicKeyToken=null
 --- !u!114 &138354870
@@ -337,7 +348,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_RaycastTarget: 1
+  m_RaycastTarget: 0
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
@@ -882,7 +893,7 @@ RectTransform:
   m_Children:
   - {fileID: 1459508966}
   m_Father: {fileID: 1128778796}
-  m_RootOrder: 6
+  m_RootOrder: 4
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
@@ -1301,7 +1312,7 @@ RectTransform:
   m_Children:
   - {fileID: 1838919635}
   m_Father: {fileID: 1128778796}
-  m_RootOrder: 2
+  m_RootOrder: 7
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
@@ -1653,7 +1664,7 @@ RectTransform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 1128778796}
-  m_RootOrder: 4
+  m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0}
   m_AnchorMax: {x: 0.5, y: 0}
@@ -2010,13 +2021,13 @@ RectTransform:
   m_Children:
   - {fileID: 1700455620}
   - {fileID: 1368234295}
-  - {fileID: 744553435}
-  - {fileID: 1566216815}
   - {fileID: 979358720}
   - {fileID: 1369679937}
   - {fileID: 385007275}
   - {fileID: 1572082103}
   - {fileID: 130945936}
+  - {fileID: 744553435}
+  - {fileID: 1566216815}
   m_Father: {fileID: 0}
   m_RootOrder: 5
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -2138,7 +2149,7 @@ RectTransform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 1128778796}
-  m_RootOrder: 5
+  m_RootOrder: 3
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
@@ -2331,8 +2342,7 @@ MonoBehaviour:
   redSlider: {fileID: 1368234296}
   brocha: {fileID: 2074823441}
   texturesToPaint:
-  - {fileID: 2800000, guid: dfbb7aec403a37747afe5fbd8202ade0, type: 3}
-  - {fileID: 2800000, guid: 37689ca1f5f7ea343a0c657f035acb8c, type: 3}
+  - {fileID: 2800000, guid: 20cd68893e3e5b349a9773c691fc154d, type: 3}
   redPToLoose: 30
   pinturaLoosePerPaint: 0.2
   levelsToComplete: 2
@@ -2391,7 +2401,7 @@ RectTransform:
   m_Children:
   - {fileID: 1026681910}
   m_Father: {fileID: 1128778796}
-  m_RootOrder: 3
+  m_RootOrder: 8
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
@@ -2428,7 +2438,7 @@ RectTransform:
   - {fileID: 2035329055}
   - {fileID: 231671956}
   m_Father: {fileID: 1128778796}
-  m_RootOrder: 7
+  m_RootOrder: 5
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}

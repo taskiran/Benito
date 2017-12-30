@@ -28,10 +28,13 @@ public class GameManager : MonoBehaviour {
     private GameObject pipe;
     private Generator generator;
     private float startSpeed = 0.5f;
+    private GameManagerLinker linker;
 
     private void Awake()
     {
         generator = GetComponent<Generator>();
+        if(GameObject.FindGameObjectWithTag("GameManagerLinker"))
+            linker = GameObject.FindGameObjectWithTag("GameManagerLinker").GetComponent<GameManagerLinker>();
     }
 
     private void Start()
@@ -62,7 +65,7 @@ public class GameManager : MonoBehaviour {
         // BORRAME BRO
         if (Input.GetKeyDown(KeyCode.Escape))
         {
-            SceneManager.LoadScene("main");
+            win = true;
         }
 	}
 
@@ -164,14 +167,6 @@ public class GameManager : MonoBehaviour {
         {
             winObj.SetActive(true);
         }
-        
-        //if(Input.touchCount > 0)
-        //{
-        //    if (Input.GetTouch(0).phase == TouchPhase.Began)
-        //    {
-        //        SceneManager.LoadScene(SceneManager.GetActiveScene().name);
-        //    }
-        //}
     }
 
     /* Volver a intentar */
@@ -191,7 +186,8 @@ public class GameManager : MonoBehaviour {
     /* Vuelve al mundo */
     public void GoToWorld()
     {
-        SceneManager.LoadScene(0);
+        if (linker != null) linker.minigameCompleted = true;
+        SceneManager.LoadScene("main");
     }
 }
 

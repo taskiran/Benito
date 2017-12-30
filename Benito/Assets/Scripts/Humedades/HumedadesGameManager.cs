@@ -38,13 +38,17 @@ public class HumedadesGameManager : MonoBehaviour {
 
     private float pinturaLoosed;
 
+    private GameManagerLinker linker;
+
 	// Use this for initialization
 	void Start () {
-        PlayerPrefs.SetInt("Day", 1);
         // Enlaces
         brush.GetComponent<SpriteRenderer>().color = Color.white;
+        if(GameObject.FindGameObjectWithTag("GameManagerLinker"))
+            linker = GameObject.FindGameObjectWithTag("GameManagerLinker").GetComponent<GameManagerLinker>();
         gameOver = false;
-        gui = GetComponent<MyGUI>();
+        gui = this.GetComponent<MyGUI>();
+        if (gui == null) Debug.LogError("GUI not finded!");
         levelsCompleted = 0;
         gui.startTime = time;
         pinturaLoosed = 0f;
@@ -66,7 +70,7 @@ public class HumedadesGameManager : MonoBehaviour {
         // BORRAME
         if (Input.GetKeyDown(KeyCode.Escape))
         {
-            SceneManager.LoadScene("main");
+            Win();
         }
     }
 
@@ -99,7 +103,8 @@ public class HumedadesGameManager : MonoBehaviour {
         switch (PlayerPrefs.GetInt("Day"))
         {
             case 1:
-                int randInd = Random.Range(0, 2);
+                // CAMBIAME 1 -> 2
+                int randInd = Random.Range(0, 1);
                 startMaterial.mainTexture = texturesToPaint[randInd];
                 break;
         }
@@ -296,6 +301,8 @@ public class HumedadesGameManager : MonoBehaviour {
     /*** Volver al mundo ***/
     public void GoToWorld()
     {
+        if (gui.win && linker != null)
+            linker.minigameCompleted = true;
         SceneManager.LoadScene("main");
     }
 }
