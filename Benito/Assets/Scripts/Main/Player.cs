@@ -199,55 +199,60 @@ public class Player : MonoBehaviour {
 
     private void OnTriggerEnter(Collider other)
     {
-        if(other.tag == "TuberíasLocasTrigger")
+        // Si no se está cargando una escena...
+        if (!gameManager.fadeOut)
         {
-            gameManager.minigameToGoType = 0;
-            linker.minigamePlayingID = other.transform.GetComponent<Minigame>().minigameID;
-            linker.minigameSpawnpositionID = other.transform.GetComponent<Minigame>().spawnPositionID;
-            linker.minigameType = other.transform.GetComponent<Minigame>().minigameType;
-            linker.playerPos = transform.position;
-            linker.firstFloor = other.GetComponent<Minigame>().upstairsMinigame ? false : true;
-        }
-        else if (other.tag == "PintarTrigger")
-        {
-            gameManager.minigameToGoType = 1;
-            linker.minigamePlayingID = other.transform.GetComponent<Minigame>().minigameID;
-            linker.minigameSpawnpositionID = other.transform.GetComponent<Minigame>().spawnPositionID;
-            linker.minigameType = other.transform.GetComponent<Minigame>().minigameType;
-            linker.playerPos = transform.position;
-            linker.firstFloor = other.GetComponent<Minigame>().upstairsMinigame ? false : true;
-        }
-        else if (other.tag == "PenDrivesTrigger")
-        {
-            gameManager.minigameToGoType = 2;
-            linker.minigamePlayingID = other.transform.GetComponent<Minigame>().minigameID;
-            linker.minigameSpawnpositionID = other.transform.GetComponent<Minigame>().spawnPositionID;
-            linker.minigameType = other.transform.GetComponent<Minigame>().minigameType;
-            linker.playerPos = transform.position;
-            linker.firstFloor = other.GetComponent<Minigame>().upstairsMinigame ? false : true;
-        }
-        else if (other.tag == "Stairs")
-        {
-            if (isColliding) return;
-            isUpstairs = !isUpstairs;
-            if (isUpstairs)
+            if (other.tag == "TuberíasLocasTrigger")
             {
-                transform.position = upStairs.transform.position;
-                generator.firstFloorTerrainTilesParent.SetActive(false);
-                generator.secondFloorTerrainTilesParent.SetActive(true);
+                gameManager.minigameToGoType = 0;
+                linker.minigamePlayingID = other.transform.GetComponent<Minigame>().minigameID;
+                linker.minigameSpawnpositionID = other.transform.GetComponent<Minigame>().spawnPositionID;
+                linker.minigameType = other.transform.GetComponent<Minigame>().minigameType;
+                linker.playerPos = transform.position;
+                linker.firstFloor = other.GetComponent<Minigame>().upstairsMinigame ? false : true;
             }
+            else if (other.tag == "PintarTrigger")
+            {
+                gameManager.minigameToGoType = 1;
+                linker.minigamePlayingID = other.transform.GetComponent<Minigame>().minigameID;
+                linker.minigameSpawnpositionID = other.transform.GetComponent<Minigame>().spawnPositionID;
+                linker.minigameType = other.transform.GetComponent<Minigame>().minigameType;
+                linker.playerPos = transform.position;
+                linker.firstFloor = other.GetComponent<Minigame>().upstairsMinigame ? false : true;
+            }
+            else if (other.tag == "PenDrivesTrigger")
+            {
+                gameManager.minigameToGoType = 2;
+                linker.minigamePlayingID = other.transform.GetComponent<Minigame>().minigameID;
+                linker.minigameSpawnpositionID = other.transform.GetComponent<Minigame>().spawnPositionID;
+                linker.minigameType = other.transform.GetComponent<Minigame>().minigameType;
+                linker.playerPos = transform.position;
+                linker.firstFloor = other.GetComponent<Minigame>().upstairsMinigame ? false : true;
+            }
+            else if (other.tag == "Stairs")
+            {
+                if (isColliding) return;
+                isUpstairs = !isUpstairs;
+                if (isUpstairs)
+                {
+                    transform.position = upStairs.transform.position;
+                    generator.firstFloorTerrainTilesParent.SetActive(false);
+                    generator.secondFloorTerrainTilesParent.SetActive(true);
+                }
 
-            else
-            {
-                transform.position = downStairs.transform.position;
-                generator.firstFloorTerrainTilesParent.SetActive(true);
-                generator.secondFloorTerrainTilesParent.SetActive(false);
+                else
+                {
+                    transform.position = downStairs.transform.position;
+                    generator.firstFloorTerrainTilesParent.SetActive(true);
+                    generator.secondFloorTerrainTilesParent.SetActive(false);
+                }
+                agent.enabled = false;
+                destination = transform.position;
+                agent.enabled = true;
+                isColliding = true;
             }
-            agent.enabled = false;
-            destination = transform.position;
-            agent.enabled = true;
-            isColliding = true;
         }
+        
     }
 }
 

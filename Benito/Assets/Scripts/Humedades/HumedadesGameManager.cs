@@ -295,7 +295,8 @@ public class HumedadesGameManager : MonoBehaviour {
         gui.gameOver = false;
         gui.win = false;
         gui.next = false;
-        
+        pinturaLoosed = 0;
+        gui.pinturaPercent = 1f - (pinturaLoosed / 100);
     }
 
     /*** Volver al mundo ***/

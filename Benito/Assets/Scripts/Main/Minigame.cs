@@ -28,4 +28,9 @@ public class Minigame : MonoBehaviour {
             GetComponent<BoxCollider>().enabled = false;
         }
     }
+
+    private void OnEnable()
+    {
+        player = GameObject.FindGameObjectWithTag("Player").GetComponent<Player>();
+    }
 }

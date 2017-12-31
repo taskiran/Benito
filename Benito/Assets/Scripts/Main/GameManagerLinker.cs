@@ -40,9 +40,6 @@ public class GameManagerLinker : MonoBehaviour {
         DontDestroyOnLoad(gameObject);
         completlyLinked = true;
         firstFloor = true;
-
-        // BORRAME PRIMO //
-        PlayerPrefs.SetInt("Day", 1);
     }
 
     private void Update()
@@ -52,7 +49,14 @@ public class GameManagerLinker : MonoBehaviour {
             numberOfMinigamesCompleted++;
             _minigameCompleted = true;
         }
-        
+
+        if (onMinigame)
+        {
+            foreach (GameObject go in miniGames)
+            {
+                go.SetActive(false);
+            }
+        }
     }
 
 }

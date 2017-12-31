@@ -55,7 +55,7 @@ public class MyGUI : MonoBehaviour {
             winObj.SetActive(false);
         }
 
-        if(!gameOver && !win)
+        if(!gameOver && !win && !next)
         {
             // Tiempo
             timeLeft = startTime - timer;

@@ -41,6 +41,8 @@ public class MainGameManager : MonoBehaviour {
     public GameObject dayCompletedPanel;
     public GameObject gameCompletedPanel;
     public Text goToMinigameText;
+    public Text dayText;
+    public Text numberOfProblemsText;
     [HideInInspector]
     public int minigameToGoType;
 
@@ -173,7 +175,7 @@ public class MainGameManager : MonoBehaviour {
                 return;
             }
         }
-        if (miniGames.Count >= maxNumberOfMinigamesThisDay) return;
+        if (miniGames.Count + linker.numberOfMinigamesCompleted >= maxNumberOfMinigamesThisDay && i != 2) return;
         // Crea y posiciona el objeto
         GameObject miniGame = null;
         if (i == 2)
@@ -292,6 +294,11 @@ public class MainGameManager : MonoBehaviour {
         {
             dayEnded = true;
         }
+
+        // Muestra el dia por pantalla
+        dayText.text = "Dia " + PlayerPrefs.GetInt("Day");
+        // Muestra el numbero de estropicios por pantalla
+        numberOfProblemsText.text = "Estropicios " + miniGames.Count;
     }
 
     /*** Metodo para cargar escena segun el tipo de minijuego ***/
@@ -391,6 +398,9 @@ public class MainGameManager : MonoBehaviour {
     /*** Metodo para enlazar al volver de un minijuego ***/
     void Link()
     {
+        // Desactiva el colisionador del player
+        player.GetComponent<BoxCollider>().enabled = false;
+
         // Esconde los paneles
         goToMinigamePanel.SetActive(false);
 
@@ -409,8 +419,9 @@ public class MainGameManager : MonoBehaviour {
         }
 
         // Posiciona al player
-        player.GetComponent<NavMeshAgent>().destination = linker.playerPos;
         player.transform.position = linker.playerPos;
+        //player.GetComponent<NavMeshAgent>().destination = linker.playerPos;
+        
 
         if (linker.minigameCompleted)
         {
@@ -448,8 +459,14 @@ public class MainGameManager : MonoBehaviour {
         linker.onMinigame = false;
         linker.completlyLinked = true;
 
+        // Activa el colisionador del player
+        player.GetComponent<BoxCollider>().enabled = true;
+
         // Inicia el tiempo por donde estaba
         dayTimer = PlayerPrefs.GetFloat("DayTimer");
+
+        // Esconde los paneles
+        goToMinigamePanel.SetActive(false);
     }
     
     /*** BUTTONS ***/
@@ -470,8 +487,14 @@ public class MainGameManager : MonoBehaviour {
         PlayerPrefs.SetInt("Day", PlayerPrefs.GetInt("Day") + 1);
         linker.started = false;
         linker.numberOfMinigamesCompleted = 0;
+        linker.minigameCompleted = false;
+        linker.penDrivesCompleted = false;
         dayCompleted = false;
         SetUpDay();
+    }
+    public void ResetStats()
+    {
+        PlayerPrefs.SetInt("Day", 1);
     }
 }
 
