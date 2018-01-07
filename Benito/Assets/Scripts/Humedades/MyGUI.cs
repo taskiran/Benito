@@ -5,7 +5,7 @@ using UnityEngine.UI;
 
 public class MyGUI : MonoBehaviour {
 
-    public GameObject gameOverObj, winObj, timerObj, pinturaIndicador, peligroIndicador;
+    public GameObject gameOverObj, winObj, goToWorldObj, timerObj, pinturaIndicador, peligroIndicador;
     [HideInInspector]
     public bool gameOver = false, win = false, next = false;
     [HideInInspector]
@@ -17,11 +17,15 @@ public class MyGUI : MonoBehaviour {
 
     private float timePercent;
 
+    private Dialogos dialogs;
+
 	// Use this for initialization
 	void Start () {
         gameOverObj.SetActive(false);
         winObj.SetActive(false);
+        goToWorldObj.SetActive(false);
         manager = GetComponent<HumedadesGameManager>();
+        dialogs = GameObject.FindGameObjectWithTag("GameManagerLinker").GetComponent<Dialogos>();
         timer = 0;
     }
 	
@@ -38,24 +42,25 @@ public class MyGUI : MonoBehaviour {
 
         if (win)
         {
-            winObj.SetActive(true);
-            winObj.transform.GetChild(0).GetChild(1).GetChild(0).gameObject.GetComponent<Text>().text = "GoToWorld";
+            goToWorldObj.SetActive(true);
+            /*winObj.transform.GetChild(0).GetChild(1).GetChild(0).gameObject.GetComponent<Text>().text = "GoToWorld";
             winObj.transform.GetChild(0).GetChild(1).gameObject.GetComponent<Button>().onClick.RemoveAllListeners();
-            winObj.transform.GetChild(0).GetChild(1).gameObject.GetComponent<Button>().onClick.AddListener(manager.GoToWorld);
+            winObj.transform.GetChild(0).GetChild(1).gameObject.GetComponent<Button>().onClick.AddListener(manager.GoToWorld);*/
         }
         else if (next)
         {
             winObj.SetActive(true);
-            winObj.transform.GetChild(0).GetChild(1).GetChild(0).gameObject.GetComponent<Text>().text = "Next Level";
+            /*winObj.transform.GetChild(0).GetChild(1).GetChild(0).gameObject.GetComponent<Text>().text = "Next Level";
             winObj.transform.GetChild(0).GetChild(1).gameObject.GetComponent<Button>().onClick.RemoveAllListeners();
-            winObj.transform.GetChild(0).GetChild(1).gameObject.GetComponent<Button>().onClick.AddListener(manager.TryAgain);
+            winObj.transform.GetChild(0).GetChild(1).gameObject.GetComponent<Button>().onClick.AddListener(manager.TryAgain);*/
         }
         else
         {
             winObj.SetActive(false);
+            goToWorldObj.SetActive(false);
         }
 
-        if(!gameOver && !win && !next)
+        if(!gameOver && !win && !next && !dialogs.onDialog)
         {
             // Tiempo
             timeLeft = startTime - timer;

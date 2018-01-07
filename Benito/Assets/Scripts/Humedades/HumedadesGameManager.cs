@@ -18,10 +18,13 @@ public class HumedadesGameManager : MonoBehaviour {
     [Header("Parametros del juego")]
     public GameObject brocha;
     public Texture2D[] texturesToPaint;
+    public float[] threeStarsTimes;
+    public float[] oneStarDangerZones;
     public float redPToLoose = 30.0f;
     public float pinturaLoosePerPaint = 10.0f;
     public uint levelsToComplete = 2;
     public float time = 99999f;
+    public float giveStarsTime = 0.5f;
 
     [HideInInspector]
     public uint levelsCompleted = 0;
@@ -39,19 +42,45 @@ public class HumedadesGameManager : MonoBehaviour {
     private float pinturaLoosed;
 
     private GameManagerLinker linker;
+    private Dialogos dialogs;
+
+    private float totalTimeTimer = 0.0f;
+    private float threeStarsTimer = 0.0f;
+
+    private float totalDangerZones = 0.0f;
+    private float dangerZones = 0.0f;
+
+    private bool loosed = false;
+
+    private int totalStars = 0;
+    private int starsGived = 0;
+
+    private bool starsCalculated;
 
 	// Use this for initialization
 	void Start () {
         // Enlaces
         brush.GetComponent<SpriteRenderer>().color = Color.white;
-        if(GameObject.FindGameObjectWithTag("GameManagerLinker"))
+        if (GameObject.FindGameObjectWithTag("GameManagerLinker"))
+        {
             linker = GameObject.FindGameObjectWithTag("GameManagerLinker").GetComponent<GameManagerLinker>();
+            dialogs = linker.gameObject.GetComponent<Dialogos>();
+        }
+            
         gameOver = false;
         gui = this.GetComponent<MyGUI>();
         if (gui == null) Debug.LogError("GUI not finded!");
         levelsCompleted = 0;
         gui.startTime = time;
         pinturaLoosed = 0f;
+
+        totalTimeTimer = 0.0f;
+        threeStarsTimer = 0.0f;
+
+        totalDangerZones = 0.0f;
+        dangerZones = 0.0f;
+
+        loosed = false;
 
         SelectTextureToPaint();
 
@@ -62,10 +91,12 @@ public class HumedadesGameManager : MonoBehaviour {
 	// Update is called once per frame
 	void Update () {
 
-        if (!gameOver && !gui.win && !gui.next)
+        if (!gameOver && !gui.win && !gui.next && !dialogs.onDialog)
         {
             Game();
         }
+
+        
         
         // BORRAME
         if (Input.GetKeyDown(KeyCode.Escape))
@@ -76,6 +107,9 @@ public class HumedadesGameManager : MonoBehaviour {
 
     void Game()
     {
+        // Temporizador
+        totalTimeTimer += Time.deltaTime;
+
         // Variables
         Vector3 uvWorldPosition = Vector3.zero;
         GameObject _brush = null;
@@ -100,15 +134,18 @@ public class HumedadesGameManager : MonoBehaviour {
 
     void SelectTextureToPaint()
     {
+        int randInd = 0;
         switch (PlayerPrefs.GetInt("Day"))
         {
             case 1:
                 // CAMBIAME 1 -> 2
-                int randInd = Random.Range(0, 1);
+                randInd = Random.Range(0, 1);
                 startMaterial.mainTexture = texturesToPaint[randInd];
                 break;
         }
 
+        threeStarsTimer += threeStarsTimes[randInd];
+        dangerZones += oneStarDangerZones[randInd];
         baseMaterial.mainTexture = mainTex;
     }
 
@@ -162,6 +199,7 @@ public class HumedadesGameManager : MonoBehaviour {
             }
         }
 
+        // Sliders
         whiteSlider.value = (float)((whiteP / (pix.Length / 100f)));
         redSlider.value = (float)((redP / fullRedP));
         gui.peligroPercent = (1f - (float)((redP / fullRedP))) + redPToLoose / 100;
@@ -262,6 +300,7 @@ public class HumedadesGameManager : MonoBehaviour {
     {
         gameOver = true;
         gui.gameOver = true;
+        loosed = true;
     }
 
     /*** Metodo para ganar ***/
@@ -271,10 +310,55 @@ public class HumedadesGameManager : MonoBehaviour {
         if(levelsCompleted >= 2)
         {
             gui.win = true;
+            if(!starsCalculated)
+                CalculateStars();
+            if (starsCalculated)
+                InvokeRepeating("GiveStars", 0, giveStarsTime);
         }
         else
         {
+            // Estrellas
+            totalDangerZones += 1.0f - redSlider.value;
             gui.next = true;
+        }
+    }
+    
+    /*** Calcular estrellas a dar ***/
+    void CalculateStars()
+    {
+        // x Zonas de peligro pintadas = 1 estrella
+        if (totalDangerZones < dangerZones)
+        {
+            totalStars++;
+        }
+        // Ha completado el juego sin perder = 2 estrellas
+        if (!loosed)
+        {
+            totalStars++;
+        }
+        // Ha completado el juego en x tiempo = 3 estrellas
+        if (totalTimeTimer < threeStarsTimer)
+        {
+            totalStars++;
+        }
+
+        starsCalculated = true;
+    }
+
+    /*** Dar estrellas al acabar ***/
+    void GiveStars()
+    {
+        if(totalStars > 0)
+        {
+            int starIndex = starsGived + 2;
+            gui.goToWorldObj.transform.GetChild(starIndex).gameObject.SetActive(true);
+            gui.goToWorldObj.transform.GetChild(starIndex).transform.GetChild(0).GetComponent<Animator>().Play("IntroduceStar" + (starIndex - 1));
+            totalStars--;
+            starsGived++;
+        }
+        else
+        {
+            CancelInvoke("GiveStars");
         }
     }
 

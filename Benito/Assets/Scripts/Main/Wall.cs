@@ -23,25 +23,31 @@ public class Wall : MonoBehaviour {
     private float scaledDistance;
 
     private Renderer rend;
+    private GameGenerator generator;
 
     /*** AWAKE ***/
     private void Awake()
     {
         player = GameObject.FindGameObjectWithTag("Player");
         rend = GetComponent<Renderer>();
+        generator = GameObject.FindGameObjectWithTag("MainGameManager").GetComponent<GameGenerator>();
     }
 	
 	/*** UPDATE ***/
 	void Update () {
-        playerPos = player.transform.position;  // Almacena la posicion del player
-        distance = Vector3.Distance(transform.position, playerPos); // Calcula la distancia entre la pared y el player
-        scaledDistance = (distance - minTransparencyDistance) / (maxTransparencyDistance - minTransparencyDistance);   // Normaliza la distancia
-        scaledDistance = Mathf.Clamp01(scaledDistance); // Limita la distancia entre 0 - 1
+        if (generator.sceneGenerated)
+        {
+            playerPos = player.transform.position;  // Almacena la posicion del player
+            distance = Vector3.Distance(transform.position, playerPos); // Calcula la distancia entre la pared y el player
+            scaledDistance = (distance - minTransparencyDistance) / (maxTransparencyDistance - minTransparencyDistance);   // Normaliza la distancia
+            scaledDistance = Mathf.Clamp01(scaledDistance); // Limita la distancia entre 0 - 1
 
-        // Aplica el color con la opacidad calculada previamente
-        Color col = rend.material.color;
-        col.a = scaledDistance;
-        rend.material.color = col;
+            // Aplica el color con la opacidad calculada previamente
+            Color col = rend.material.color;
+            col.a = scaledDistance;
+            rend.material.color = col;
+        }
+        
 	}
 }
 

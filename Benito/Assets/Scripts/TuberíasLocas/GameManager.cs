@@ -21,6 +21,8 @@ public class GameManager : MonoBehaviour {
     public GameObject goToWorldObj;
     [HideInInspector]
     public bool win = false, gameOver = false;
+    public Dialogos dialogs;
+    public float giveStarsTime = 0.5f;
 
     /* Propiedades privadas */
     private float counter = 0f;
@@ -29,12 +31,23 @@ public class GameManager : MonoBehaviour {
     private Generator generator;
     private float startSpeed = 0.5f;
     private GameManagerLinker linker;
+    private bool loosed = false;
+    private float timeLoosed = 0.0f;
+    [HideInInspector]
+    public float twoStarsTimeArchivement = 0.0f, threeStarsTimeArchivement = 0.0f;
+
+    private int starsToGive = 0, starsGived = 0;
+    private bool starsCalculated = false;
 
     private void Awake()
     {
         generator = GetComponent<Generator>();
-        if(GameObject.FindGameObjectWithTag("GameManagerLinker"))
+        if (GameObject.FindGameObjectWithTag("GameManagerLinker"))
+        {
             linker = GameObject.FindGameObjectWithTag("GameManagerLinker").GetComponent<GameManagerLinker>();
+            dialogs = linker.gameObject.GetComponent<Dialogos>();
+        }
+        
     }
 
     private void Start()
@@ -43,15 +56,18 @@ public class GameManager : MonoBehaviour {
         gameOverObj.SetActive(false);
         goToWorldObj.SetActive(false);
         startSpeed = waterSpeed;
+        loosed = false;
     }
 
     // Update is called once per frame
     void Update () {
         // Bucle de juego sin ganar
-        if (!win && !gameOver)
+        if (!win && !gameOver && !dialogs.onDialog)
         {
             GetPlayerInput();
             ManageWater();
+            timeLoosed += Time.deltaTime;
+            //print(twoStarsTimeArchivement + ", " + timeLoosed);
         }
             
         // Bucle de juego una vez ganado
@@ -162,10 +178,53 @@ public class GameManager : MonoBehaviour {
         if(generator.levelsCompleted == 1)
         {
             goToWorldObj.SetActive(true);
+            if(!starsCalculated)
+                CalculateSatrs();
+            if(!IsInvoking("GiveStars"))
+                InvokeRepeating("GiveStars", 0, giveStarsTime);
         }
         else
         {
             winObj.SetActive(true);
+        }
+    }
+
+    /* Calcula el numero de estrellas a dar */
+    void CalculateSatrs()
+    {
+        // No ha perdido = 1 estrella
+        if (!loosed)
+        {
+            starsToGive++;
+        }
+        // Ha completado el juego en x tiempo = 2 estrellas
+        if (timeLoosed < twoStarsTimeArchivement)
+        {
+            starsToGive++;
+        }
+        // Ha completado el juego en x tiempo = 3 estrellas
+        if (timeLoosed < threeStarsTimeArchivement)
+        {
+            starsToGive++;
+        }
+
+        starsCalculated = true;
+    }
+
+    /* Dar estrellas */
+    void GiveStars()
+    {
+        if (starsToGive > 0)
+        {
+            int starIndex = starsGived + 2;
+            goToWorldObj.transform.GetChild(starIndex).gameObject.SetActive(true);
+            goToWorldObj.transform.GetChild(starIndex).transform.GetChild(0).GetComponent<Animator>().Play("IntroduceStar" + (starIndex - 1));
+            starsToGive--;
+            starsGived++;
+        }
+        else
+        {
+            CancelInvoke("GiveStars");
         }
     }
 
@@ -181,12 +240,18 @@ public class GameManager : MonoBehaviour {
     void GameOver()
     {
         gameOverObj.SetActive(true);
+        loosed = true;
     }
 
     /* Vuelve al mundo */
     public void GoToWorld()
     {
-        if (linker != null) linker.minigameCompleted = true;
+        if (linker != null)
+        {
+            if(win)
+                linker.minigameCompleted = true;
+        }
+        
         SceneManager.LoadScene("main");
     }
 }

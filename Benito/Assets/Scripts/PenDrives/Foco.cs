@@ -6,9 +6,11 @@ public class Foco : MonoBehaviour {
 
 	public PenDrivesGUI gui;	// GUI
 
+    private PenDrivesGameManager gm;
+
 	// Use this for initialization
 	void Start () {
-		
+        gm = GameObject.FindGameObjectWithTag("GameManager").GetComponent<PenDrivesGameManager>();
 	}
 	
 	// Update is called once per frame
@@ -20,6 +22,7 @@ public class Foco : MonoBehaviour {
     {
 		if (collision.gameObject.tag == "PenDrive") {
 			gui.penDrivesLeft--;
+            gm.penDrivesPicked++;
             Destroy(collision.gameObject);
 		}
     }

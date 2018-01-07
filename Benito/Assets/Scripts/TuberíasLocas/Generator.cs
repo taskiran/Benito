@@ -20,6 +20,9 @@ public class Generator : MonoBehaviour {
     public GameObject[,] pipes;
     [HideInInspector]
     public int rows, level, levelsCompleted;
+    [Header("Tiempos para cada nivel para las estrellas")]
+    public float[] twoStarsTimes;
+    public float[] threeStarsTimes;
 
     /* Propiedades privadas */
     private int __x = 0;
@@ -231,6 +234,8 @@ public class Generator : MonoBehaviour {
                 level = Random.Range(4, 6);
                 break;
         }
+        GetComponent<GameManager>().twoStarsTimeArchivement += twoStarsTimes[level];
+        GetComponent<GameManager>().threeStarsTimeArchivement += threeStarsTimes[level];
     }
 }
 

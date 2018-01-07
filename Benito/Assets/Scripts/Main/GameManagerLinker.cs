@@ -21,13 +21,16 @@ public class GameManagerLinker : MonoBehaviour {
     public List<Vector3> posWithTuberias = new List<Vector3>();
     public List<Vector3> posWithPintar = new List<Vector3>();
     public List<GameObject> miniGames = new List<GameObject>();
+    public List<GameObject> alumnos = new List<GameObject>();
     public uint[] numberOfMinigames;
     public bool started = false, minigameCompleted = false, penDrivesCompleted = false;
-    public uint numberOfMinigamesCompleted;
+    public uint numberOfMinigamesCompleted, numberOfPenDrivesPicked, numberOfPenDrives, totalNumberOfPenDrives;
     public Vector3 playerPos;
     [HideInInspector]
     public bool _minigameCompleted, onMinigame;
     public bool completlyLinked, firstFloor;
+
+    private Dialogos dialogs;
 
     /*** AWAKE ***/
     private void Awake()
@@ -40,6 +43,8 @@ public class GameManagerLinker : MonoBehaviour {
         DontDestroyOnLoad(gameObject);
         completlyLinked = true;
         firstFloor = true;
+        dialogs = GetComponent<Dialogos>();
+        dialogs.enabled = true;
     }
 
     private void Update()
@@ -56,6 +61,7 @@ public class GameManagerLinker : MonoBehaviour {
             {
                 go.SetActive(false);
             }
+            dialogs.enabled = true;
         }
     }
 

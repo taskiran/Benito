@@ -56,9 +56,6 @@ public class Player : MonoBehaviour {
         gameManager = GameObject.FindGameObjectWithTag("MainGameManager").GetComponent<MainGameManager>();
         linker = GameObject.FindGameObjectWithTag("GameManagerLinker").GetComponent<GameManagerLinker>();
         arrow = transform.GetChild(0).transform.gameObject;
-
-        generator.firstFloorTerrainTilesParent.SetActive(true);
-        generator.secondFloorTerrainTilesParent.SetActive(false);
     }
 
     /*** Start ***/
@@ -76,7 +73,7 @@ public class Player : MonoBehaviour {
     /*** Update ***/
     void Update () {
         // Movimiento
-        if (!gameManager.fadeOut && !gameManager.onPanel)
+        if (!gameManager.fadeOut && !gameManager.onPanel && generator.sceneGenerated)
         {
             agent.enabled = true;
             CheckMovementInput();
@@ -197,6 +194,7 @@ public class Player : MonoBehaviour {
         farCamActive = !farCamActive;
     }
 
+    /*** Colisiones ***/
     private void OnTriggerEnter(Collider other)
     {
         // Si no se está cargando una escena...
@@ -228,6 +226,15 @@ public class Player : MonoBehaviour {
                 linker.minigameType = other.transform.GetComponent<Minigame>().minigameType;
                 linker.playerPos = transform.position;
                 linker.firstFloor = other.GetComponent<Minigame>().upstairsMinigame ? false : true;
+            }
+            else if (other.tag == "Alumno")
+            {
+                if (!other.transform.parent.gameObject.GetComponent<Alumno>().returnToStairs)
+                {
+                    gameManager.playerNumberOfPenDrives--;
+                    gameManager.numberOfAlumnosEnGarita--;
+                    other.transform.parent.gameObject.GetComponent<Alumno>().returnToStairs = true;
+                }
             }
             else if (other.tag == "Stairs")
             {

@@ -19,6 +19,9 @@ TagManager:
   - PenDrivesTrigger
   - Obstaculo
   - Stairs
+  - Garita
+  - Alumno
+  - DialogTxt
   layers:
   - Default
   - TransparentFX

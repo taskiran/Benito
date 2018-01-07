@@ -12,8 +12,12 @@ using UnityEngine;
 
 public class TerrainTile : MonoBehaviour {
 
+    public float speed = 20f;
+
+    [HideInInspector]
     public int x, y, z;
 
+    [HideInInspector]
     public bool isUpstairsTile;
 
     private GameGenerator generator;
@@ -40,7 +44,7 @@ public class TerrainTile : MonoBehaviour {
         {
             if (transform.position.y > -0.5f)
             {
-                transform.Translate(Vector3.down * 40 * Time.deltaTime);
+                transform.Translate(Vector3.down * speed * Time.deltaTime);
             }
             else
             {
@@ -52,7 +56,7 @@ public class TerrainTile : MonoBehaviour {
         {
             if (transform.position.y > 10.4f)
             {
-                transform.Translate(Vector3.down * 40 * Time.deltaTime);
+                transform.Translate(Vector3.down * speed * Time.deltaTime);
             }
             else
             {

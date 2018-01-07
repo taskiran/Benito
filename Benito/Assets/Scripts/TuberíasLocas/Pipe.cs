@@ -33,6 +33,7 @@ public class Pipe : MonoBehaviour {
     private int ind = 0;
     private Generator generator;
     private GameManager gameManager;
+    private Dialogos dialog;
     private GameObject waterParent;
     private float scale, _scale, limitScale;
     private float waterSpeed;
@@ -49,6 +50,7 @@ public class Pipe : MonoBehaviour {
         sRenderer = GetComponent<SpriteRenderer>();
         generator = GameObject.Find("TLGameManager").GetComponent<Generator>();
         gameManager = GameObject.Find("TLGameManager").GetComponent<GameManager>();
+        dialog = gameManager.dialogs;
         waterSpeed = gameManager.waterSpeed;
         waterDropsObject = transform.GetChild(0).transform.GetChild(1).transform.gameObject;
     }
@@ -121,7 +123,7 @@ public class Pipe : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update () {
-        if(!gameManager.win)
+        if(!gameManager.win && !dialog.onDialog)
             UpdatePipe();
 	}
 

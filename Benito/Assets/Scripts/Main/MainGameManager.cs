@@ -35,6 +35,9 @@ public class MainGameManager : MonoBehaviour {
     public uint maxMiniGames = 2;
     [Header("Numero de minijuegos por dia")]
     public uint[] numberOfMinigamesPerDay;
+    [Header("Alumnos")]
+    public GameObject alumnoPrefab;
+    public GameObject alumnoSpawnPosition;
 
     [Header("UI")]
     public GameObject goToMinigamePanel;
@@ -43,6 +46,9 @@ public class MainGameManager : MonoBehaviour {
     public Text goToMinigameText;
     public Text dayText;
     public Text numberOfProblemsText;
+    public Text numberOfPenDrivesText;
+    public GameObject alumnoEnGaritaText;
+    public GameObject gotoTuberias;
     [HideInInspector]
     public int minigameToGoType;
 
@@ -69,6 +75,12 @@ public class MainGameManager : MonoBehaviour {
     [HideInInspector]
     public List<Vector3> posWithPintar = new List<Vector3>();
     private int totalMinigames;
+    [HideInInspector]
+    public bool alumnoEnGarita = false;
+    [HideInInspector]
+    public uint numberOfAlumnosEnGarita = 0;
+    [HideInInspector]
+    public List<GameObject> alumnos = new List<GameObject>();
 
     private uint mgn = 0;   // Nombre del minijuego a instanciar
 
@@ -85,9 +97,12 @@ public class MainGameManager : MonoBehaviour {
     private float timeLeft;
     private float minLeft;
     private float secondsLeft;
+    [HideInInspector]
+    public uint playerNumberOfPenDrives, totalNumberOfPenDrives;
 
     //-------------------Interfaz--------------------------------//
     private float fadeTimer = 0f;
+    private Dialogos dialogs;
 
     /*** START ***/
     void Start () {
@@ -98,7 +113,18 @@ public class MainGameManager : MonoBehaviour {
             Link();
         }
         // Comprueba si ha acabado el dia
-        if (linker.penDrivesCompleted) dayCompleted = true;
+        if (linker.penDrivesCompleted)
+        {
+            // Indica que no se genere de nuevo el terreno
+            GetComponent<GameGenerator>().dayStarted = true;
+            // Gestion de pen drives
+            //playerNumberOfPenDrives = linker.numberOfPenDrives;
+            //playerNumberOfPenDrives += linker.numberOfPenDrivesPicked;
+            linker.numberOfPenDrives += linker.numberOfPenDrivesPicked;
+            // Acaba el dia
+            dayCompleted = true;    
+        }
+            
     }
 	
 	/*** UPDATE ***/
@@ -109,10 +135,15 @@ public class MainGameManager : MonoBehaviour {
             gameCompletedPanel.SetActive(false);
             dayCompletedPanel.SetActive(false);
 
-            // Logica
-            Day();
-            Interface();
-            MinigamesManager();
+            if (GetComponent<GameGenerator>().sceneGenerated)
+            {
+                // Logica
+                Day();
+                Alumnos();
+                Interface();
+                MinigamesManager();
+            }
+            
         }
         else
         {   
@@ -295,10 +326,35 @@ public class MainGameManager : MonoBehaviour {
             dayEnded = true;
         }
 
+        // Gestion de pen drives y alumnos
+        if(numberOfAlumnosEnGarita == 0)
+        {
+            alumnoEnGarita = false;
+        }
+        else
+        {
+            alumnoEnGarita = true;
+        }
+        alumnoEnGaritaText.SetActive(alumnoEnGarita);
+
         // Muestra el dia por pantalla
         dayText.text = "Dia " + PlayerPrefs.GetInt("Day");
         // Muestra el numbero de estropicios por pantalla
         numberOfProblemsText.text = "Estropicios " + miniGames.Count;
+        // Muestra el numero de pen drives por pantalla
+        numberOfPenDrivesText.text = "PenDrives " + playerNumberOfPenDrives;
+    }
+
+    /*** Metodo para la gestion de los alumnos ***/
+    void Alumnos()
+    {
+        if(linker.totalNumberOfPenDrives > 0)
+        {
+            GameObject alumno = Instantiate(alumnoPrefab, alumnoSpawnPosition.transform.position, Quaternion.identity);
+            alumno.GetComponent<Alumno>().stairsPos = alumnoSpawnPosition.transform.position;
+            linker.totalNumberOfPenDrives--;
+            alumnos.Add(alumno);
+        }
     }
 
     /*** Metodo para cargar escena segun el tipo de minijuego ***/
@@ -313,6 +369,8 @@ public class MainGameManager : MonoBehaviour {
                 case (0):
                     goToMinigameText.text = "Tuberías Locas";
                     sceneToFadeName = "TuberíasLocas";
+                    gotoTuberias.SetActive(true);
+                    
                     break;
                 case (1):
                     goToMinigameText.text = "Humedades";
@@ -350,10 +408,19 @@ public class MainGameManager : MonoBehaviour {
                 linker.minigameCompleted = false;
                 linker.onMinigame = true;
                 linker.completlyLinked = false;
+                linker.numberOfPenDrives = playerNumberOfPenDrives;
+                linker.alumnos = alumnos;
                 // No destruyas los minijuegos
                 foreach (GameObject mg in miniGames)
                 {
                     DontDestroyOnLoad(mg);
+                }
+                foreach (GameObject alumno in alumnos)
+                {
+                    DontDestroyOnLoad(alumno);
+                    alumno.GetComponent<Alumno>().enabled = false;
+                    alumno.GetComponent<NavMeshAgent>().enabled = false;
+                    alumno.SetActive(false);
                 }
                 // Guarda el tiempo
                 PlayerPrefs.SetFloat("DayTimer", dayTimer);
@@ -375,6 +442,7 @@ public class MainGameManager : MonoBehaviour {
         // Asignaciones iniciales
         fadeImage.gameObject.SetActive(false);
         goToMinigamePanel.SetActive(false);
+        gotoTuberias.SetActive(false);
         minigameToGoType = -1;
         dayTimer = 0.0f;
         fadeTimer = 0f;
@@ -387,17 +455,23 @@ public class MainGameManager : MonoBehaviour {
             Debug.LogError("Can't find player!");
         }
         linker = GameObject.FindGameObjectWithTag("GameManagerLinker").GetComponent<GameManagerLinker>();
+        dialogs = linker.gameObject.GetComponent<Dialogos>();
         arrow = player.transform.GetChild(0).transform.gameObject;
         _spawnTimer = spawnTimer;
         if (numberOfMinigames.Length == 0)
             numberOfMinigames = new uint[miniGamesPrefabs.Length];
 
         maxNumberOfMinigamesThisDay = numberOfMinigamesPerDay[PlayerPrefs.GetInt("Day") - 1];
+
+        playerNumberOfPenDrives = linker.numberOfPenDrives;
     }
 
     /*** Metodo para enlazar al volver de un minijuego ***/
     void Link()
     {
+        // Indica que no se genere de nuevo el terreno
+        GetComponent<GameGenerator>().dayStarted = true;
+
         // Desactiva el colisionador del player
         player.GetComponent<BoxCollider>().enabled = false;
 
@@ -420,16 +494,22 @@ public class MainGameManager : MonoBehaviour {
 
         // Posiciona al player
         player.transform.position = linker.playerPos;
-        //player.GetComponent<NavMeshAgent>().destination = linker.playerPos;
-        
 
-        if (linker.minigameCompleted)
+        // Gestion de alumnos //
+        alumnos = linker.alumnos;
+        foreach (GameObject alumno in alumnos)
         {
-            // Elimina el minijuego completado del mundo
-            totalMinigames = linker.totalMinigames;
-            Destroy(linker.miniGames[linker.minigamePlayingID]);
-            linker.miniGames.RemoveAt(linker.minigamePlayingID);
+            alumno.GetComponent<Alumno>().enabled = true;
+            alumno.GetComponent<NavMeshAgent>().enabled = true;
+            
+            alumno.SetActive(true);
         }
+
+        // Gestion del minijuego //
+        // Elimina el minijuego completado del mundo
+        totalMinigames = linker.totalMinigames;
+        Destroy(linker.miniGames[linker.minigamePlayingID]);
+        linker.miniGames.RemoveAt(linker.minigamePlayingID);
         
         // Guarda las lista de posiciones de minijuegos y la lista de minijuegos con las que tiene el enlazador
         posWithTuberias = linker.posWithTuberias;
@@ -474,6 +554,7 @@ public class MainGameManager : MonoBehaviour {
     {
         fadeOut = true;
         minigameToGoType = -1;
+        dialogs.enabled = false;
         goToMinigamePanel.SetActive(false);
     }
     public void CancelGoToMinigamePanel()
@@ -481,20 +562,27 @@ public class MainGameManager : MonoBehaviour {
         onPanel = false;
         minigameToGoType = -1;
         goToMinigamePanel.SetActive(false);
+        gotoTuberias.SetActive(false);
     }
     public void NextDay()
     {
         PlayerPrefs.SetInt("Day", PlayerPrefs.GetInt("Day") + 1);
         linker.started = false;
         linker.numberOfMinigamesCompleted = 0;
+        linker.numberOfPenDrivesPicked = 0;
         linker.minigameCompleted = false;
         linker.penDrivesCompleted = false;
         dayCompleted = false;
-        SetUpDay();
+        GetComponent<GameGenerator>().dayStarted = false;
+        GetComponent<GameGenerator>().sceneGenerated = false;
+        SceneManager.LoadScene("main");
     }
     public void ResetStats()
     {
         PlayerPrefs.SetInt("Day", 1);
+        PlayerPrefs.SetInt("TuberiasTutorial", 0);
+        PlayerPrefs.SetInt("HumedadesTutorial", 0);
+        PlayerPrefs.SetInt("PenDrivesTutorial", 0);
     }
 }
 
