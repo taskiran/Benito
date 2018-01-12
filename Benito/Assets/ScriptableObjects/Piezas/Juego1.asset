@@ -1,0 +1,17 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e16bfbf37a25f014196a42867d162147, type: 3}
+  m_Name: Juego1
+  m_EditorClassIdentifier: 
+  piezaPrincipal: {fileID: 1698940682775080, guid: 6b091fa5882ef9f46a1ff38fc4b23fc9,
+    type: 2}
+  piezasCanvas: {fileID: 1060910740380074, guid: 5e7b998ff05e5724bb39d9ec9a7668a5,
+    type: 2}
